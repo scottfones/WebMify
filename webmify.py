@@ -54,6 +54,11 @@ def main():
                       default='*.mkv',
                       help='pattern to match, default = *.mkv')
 
+    parser.add_option('--media-type',
+                      action='store', type='string', dest='media_type',
+                      default='tv',
+                      help='specify tv or movie for metadata look-up, default = tv')
+
     parser.add_option('--no-subs',
                       action='store_true', dest='no_subs',
                       default=False,
@@ -82,7 +87,7 @@ def main():
     parser.add_option('-t', '--title',
                       action='store', type='string', dest='show_title',
                       default='',
-                      help='series title for thetvdb and metadata, default = file base name')
+                      help='movie or series title for themoviedb metadata, default = file base name')
 
     (options, args) = parser.parse_args()
 
