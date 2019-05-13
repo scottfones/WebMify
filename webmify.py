@@ -1,5 +1,8 @@
+#!/usr/bin/env python
+
 import re
 import subprocess
+import tmdb_lookup
 
 from pathlib import Path
 from collections import Counter
@@ -28,6 +31,11 @@ def main():
                       action='store_true', dest='dvd_order',
                       default=False,
                       help='episode look-up based on dvd order, default = false')
+
+    parser.add_option('--episode',
+                      action='store', type='string', dest='tv_episode_num',
+                      default='',
+                      help='tv series episode number')
 
     parser.add_option('--external-subs',
                       action='store_true', dest='ext_subs',
@@ -74,6 +82,11 @@ def main():
                       default='20',
                       help='encode quality, default = 20')
 
+    parser.add_option('--season',
+                      action='store', type='string', dest='tv_season_num',
+                      default='',
+                      help='tv series season number')
+
     parser.add_option('--test',
                       action='store_true', dest='test_run_bool',
                       default=False,
@@ -85,22 +98,18 @@ def main():
                       help='number of cpu threads to assign, default = 16')
 
     parser.add_option('-t', '--title',
-                      action='store', type='string', dest='show_title',
+                      action='store', type='string', dest='media_title',
                       default='',
                       help='movie or series title for themoviedb metadata, default = file base name')
 
     (options, args) = parser.parse_args()
 
-    # Path Vars
-    in_path = Path(options.in_path)
-    output_path = Path(options.out_path)
-    output_name = options.out_filename
-
-    # Construct Series Info
-    series_files = sorted(in_path.glob(options.file_pattern))
-    series_name = (series_files[0].name.split('.')[0], options.show_title)[options.show_title != '']
-    output_name = (series_files[0].name.split('.')[0], options.out_filename)[options.out_filename != '']
-    print('Hello world!')
+    if options.media_type.lower() == 'tv':
+        tmdb_lookup.look_up(options.media_title,
+                            options.tv_season_num, 
+                            options.tv_episode_num)
+    else:
+        tmdb_lookup.look_up(options.media_title)
 
 if __name__ == '__main__':
     main()
