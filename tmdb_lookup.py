@@ -26,18 +26,34 @@ def find_movie(title):
     return search.movie(query=title)
 
 
-def find_tv(title, season_um, episode_num):
+def find_tv(title):
     search = tmdb.Search()
     return search.tv(query=title)
 
 
-def display_result(media_parent):
-    print('TBDb Info:')
-    try:
-        print(f"  Title: {media_parent['name']}")
-    except KeyError:
-        print(f"  Title: {media_parent['title']}")
-    print(f"  Synopsis: {media_parent['overview']}")
+def find_tv_episode(media_info, season_num, episode_num):
+    return tmdb.TV_Episodes(media_info['id'],
+                            int(season_num),
+                            int(episode_num)).info()
+
+
+def display_movie(movie_info):
+    print(f"\nMovie URL:\nhttps://www.themoviedb.org/movie/{movie_info['id']}")
+    print('\nMovie Info:')
+    print(f"Title: {movie_info['title']}")
+    print(f"Release Date: {movie_info['release_date']}")
+    print(f"Synopsis: {movie_info['overview']}")
+
+
+def display_tv_episode(show_info, ep_info):
+    print(f"\nEpisode URL:\nhttps://www.themoviedb.org/tv/{show_info['id']}/season/{ep_info['season_number']}/episode/{ep_info['episode_number']}") 
+    print('\nEpisode Info:')
+    print(f"Show: {show_info['name']}")
+    print(f"Season: {ep_info['season_number']}")
+    print(f"Episode: {ep_info['episode_number']}")
+    print(f"Air Date: {ep_info['air_date']}")
+    print(f"Episode Title: {ep_info['name']}")
+    print(f"Episode Overview: {ep_info['overview']}")
 
 
 def look_up(title, season_num='', episode_num=''):
@@ -45,11 +61,17 @@ def look_up(title, season_num='', episode_num=''):
     if season_num == '' or episode_num == '':
         search_response = find_movie(title)
     else:
-        search_response = find_tv(title, season_num, episode_num)
+        search_response = find_tv(title)
 
     if search_response['total_results'] > 1:
-        media_parent = get_choice(search_response)
+        media_info = get_choice(search_response)
     else:
-        media_parent = search_response['results'][0]
+        media_info = search_response['results'][0]
 
-    display_result(media_parent)
+    if season_num == '':
+        display_movie(media_info)
+    else:
+        display_tv_episode(media_info,
+                           find_tv_episode(media_info,
+                                           season_num,
+                                           episode_num))
