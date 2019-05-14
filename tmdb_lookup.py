@@ -58,7 +58,8 @@ def display_tv_episode(show_info, ep_info):
 
 
 def look_up(title, season_num='', episode_num=''):
-    print('TMDb Look-up:')
+    print(f'TMDb Look-up: {title}')
+
     if season_num == '' or episode_num == '':
         search_response = find_movie(title)
     else:
