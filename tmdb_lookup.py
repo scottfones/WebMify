@@ -1,8 +1,9 @@
+import sys
 import tmdb_key
 import tmdbsimple as tmdb
 
 
-tmdb.API_KEY = tmdb_key.get_key()
+tmdb.API_KEY = tmdb_key.api_key
 
 
 def get_choice(search_response):
@@ -46,7 +47,7 @@ def display_movie(movie_info):
 
 
 def display_tv_episode(show_info, ep_info):
-    print(f"\nEpisode URL:\nhttps://www.themoviedb.org/tv/{show_info['id']}/season/{ep_info['season_number']}/episode/{ep_info['episode_number']}") 
+    print(f"\nEpisode URL:\nhttps://www.themoviedb.org/tv/{show_info['id']}/season/{ep_info['season_number']}/episode/{ep_info['episode_number']}")
     print('\nEpisode Info:')
     print(f"Show: {show_info['name']}")
     print(f"Season: {ep_info['season_number']}")
@@ -63,12 +64,12 @@ def look_up(title, season_num='', episode_num=''):
     else:
         search_response = find_tv(title)
 
-    if search_response['total_results'] > 1:
-        media_info = get_choice(search_response)
-    elif search_response['total_results'] == 0:
-        print("No results found.")
-    else:
+    if search_response['total_results'] == 0:
+        sys.exit('No match found. Try modifying the title flag.')
+    elif search_response['total_results'] == 1:
         media_info = search_response['results'][0]
+    else:
+        media_info = get_choice(search_response)
 
     if season_num == '':
         display_movie(media_info)
