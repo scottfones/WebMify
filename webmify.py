@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import re
+import sys
 import subprocess
 import tmdb_lookup
 
@@ -101,9 +102,12 @@ def main():
 
     (options, args) = parser.parse_args()
 
+    if len(args) != 1:
+        sys.exit('Input argument not found. Must be input file or wildcard pattern, *, for batches.')
+
     raw_input = args[0]
 
-
+    parse_list, parse_title, parse_season_num, parse_ep_num = input_parser.parse(raw_input)
 
     tmdb_info = tmdb_lookup.look_up(options.media_title,
                                     options.tv_season_num,
