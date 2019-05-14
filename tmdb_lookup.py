@@ -65,13 +65,20 @@ def look_up(title, season_num='', episode_num=''):
 
     if search_response['total_results'] > 1:
         media_info = get_choice(search_response)
+    elif search_response['total_results'] == 0:
+        print("No results found.")
     else:
         media_info = search_response['results'][0]
 
     if season_num == '':
         display_movie(media_info)
+
+        return (media_info)
     else:
-        display_tv_episode(media_info,
-                           find_tv_episode(media_info,
-                                           season_num,
-                                           episode_num))
+        ep_info = find_tv_episode(media_info,
+                                  season_num,
+                                  episode_num)
+
+        display_tv_episode(media_info, ep_info)
+
+        return (media_info, ep_info)

@@ -105,11 +105,11 @@ def main():
     (options, args) = parser.parse_args()
 
     if options.media_type.lower() == 'tv':
-        tmdb_lookup.look_up(options.media_title,
-                            options.tv_season_num, 
-                            options.tv_episode_num)
+        tmdb_info = tmdb_lookup.look_up(options.media_title,
+                                        options.tv_season_num, 
+                                        options.tv_episode_num)
     else:
-        tmdb_lookup.look_up(options.media_title)
+        tmdb_info = tmdb_lookup.look_up(options.media_title)
 
 if __name__ == '__main__':
     main()
