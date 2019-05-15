@@ -126,8 +126,11 @@ def main():
             file_episode = options.tv_episode_num
 
         if file_base == file_title and file_season != '':
-            tmdb_info[1] = tmdb_lookup.find_tv_episode(tmdb_info[0], file_season, file_episode)
-            tmdb_lookup.display_tv_episode(tmdb_info[0], tmdb_info[1])
+            tmdb_info[1] = tmdb_lookup.find_tv_episode(tmdb_info[0],
+                                                       file_season,
+                                                       file_episode)
+            tmdb_lookup.display_tv_episode(tmdb_info[0], 
+                                           tmdb_info[1])
         else:
             tmdb_info = tmdb_lookup.look_up(file_title,
                                             file_season,
