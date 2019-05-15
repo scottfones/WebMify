@@ -4,6 +4,7 @@ import re
 import sys
 import subprocess
 import tmdb_lookup
+import input_parser
 
 from pathlib import Path
 from collections import Counter
@@ -11,7 +12,7 @@ from optparse import OptionParser, OptionGroup
 
 
 def main():
-    parser = OptionParser(usage='%prog <input file, batch using *> [options]')
+    parser = OptionParser(usage='%prog <input files, can batch using *> [options]')
 
     ffmpeg_opts = OptionGroup(parser,
                               'Encoding Options',
@@ -102,18 +103,37 @@ def main():
 
     (options, args) = parser.parse_args()
 
-    if len(args) != 1:
-        sys.exit('Input argument not found. Must be input file or wildcard pattern, *, for batches.')
+    print(f'{args}')
+    work_list = [Path(file) for file in args]
 
-    raw_input = args[0]
+    file_base = ''
+    for file in work_list:
+        print('\nX        NEW ENCODE        X\n')
 
-    parse_list, parse_title, parse_season_num, parse_ep_num = input_parser.parse(raw_input)
+        if options.media_title == '':
+            file_title = input_parser.get_title(file.name)
+        else:
+            file_title = options.media_title
 
-    tmdb_info = tmdb_lookup.look_up(options.media_title,
-                                    options.tv_season_num,
-                                    options.tv_episode_num)
+        if options.tv_season_num == '':
+            file_season = input_parser.get_season(file.name)
+        else:
+            file_season = options.tv_season_num
 
-    print(f'Return: {tmdb_info}')
+        if options.tv_episode_num == '':
+            file_episode = input_parser.get_episode(file.name)
+        else:
+            file_episode = options.tv_episode_num
+
+        if file_base == file_title and file_season != '':
+            tmdb_info[1] = tmdb_lookup.find_tv_episode(tmdb_info[0], file_season, file_episode)
+            tmdb_lookup.display_tv_episode(tmdb_info[0], tmdb_info[1])
+        else:
+            tmdb_info = tmdb_lookup.look_up(file_title,
+                                            file_season,
+                                            file_episode)
+
+        file_base = file_title
 
 if __name__ == '__main__':
     main()

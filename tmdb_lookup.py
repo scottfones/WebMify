@@ -1,9 +1,9 @@
 import sys
-import tmdb_key
+import api_keys
 import tmdbsimple as tmdb
 
 
-tmdb.API_KEY = tmdb_key.api_key
+tmdb.API_KEY = api_keys.tmdb_key
 
 
 def get_choice(search_response):
@@ -14,8 +14,6 @@ def get_choice(search_response):
             print(f"[{index}]: {result['name']}, {result['first_air_date'][:4]} (https://www.themoviedb.org/tv/{result['id']})")
         except KeyError:
             print(f"[{index}]: {result['title']}, {result['release_date'][:4]} (https://www.themoviedb.org/movie/{result['id']})")
-        # print(f"[{index}]: {result['name']}")
-        # print(f"[{index}]")
 
     user_choice = input('Result number: ')
 
@@ -38,6 +36,10 @@ def find_tv_episode(media_info, season_num, episode_num):
                             int(episode_num)).info()
 
 
+def get_tv_metadata(show_info, ep_info):
+    return (show_info['name'], ep_info['name'], ep_info['overview'])
+
+
 def display_movie(movie_info):
     print(f"\nMovie URL:\nhttps://www.themoviedb.org/movie/{movie_info['id']}")
     print('\nMovie Info:')
@@ -58,7 +60,7 @@ def display_tv_episode(show_info, ep_info):
 
 
 def look_up(title, season_num='', episode_num=''):
-    print(f'TMDb Look-up: {title}')
+    print(f'\nTMDb Look-up: {title}')
 
     if season_num == '' or episode_num == '':
         search_response = find_movie(title)
@@ -75,7 +77,7 @@ def look_up(title, season_num='', episode_num=''):
     if season_num == '':
         display_movie(media_info)
 
-        return (media_info)
+        return [media_info]
     else:
         ep_info = find_tv_episode(media_info,
                                   season_num,
@@ -83,4 +85,4 @@ def look_up(title, season_num='', episode_num=''):
 
         display_tv_episode(media_info, ep_info)
 
-        return (media_info, ep_info)
+        return [media_info, ep_info]
