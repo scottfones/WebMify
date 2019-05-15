@@ -110,6 +110,7 @@ def main():
     for file in work_list:
         print('\nX        NEW ENCODE        X\n')
 
+        # Construct Title and Episode Information
         if options.media_title == '':
             file_title = input_parser.get_title(file.name)
         else:
@@ -125,17 +126,20 @@ def main():
         else:
             file_episode = options.tv_episode_num
 
+        # Look-up Movie or Episode Information
+        # skip title look-up if file base matches previous loop
         if file_base == file_title and file_season != '':
             tmdb_info[1] = tmdb_lookup.find_tv_episode(tmdb_info[0],
                                                        file_season,
                                                        file_episode)
-            tmdb_lookup.display_tv_episode(tmdb_info[0], 
+            tmdb_lookup.display_tv_episode(tmdb_info[0],
                                            tmdb_info[1])
         else:
             tmdb_info = tmdb_lookup.look_up(file_title,
                                             file_season,
                                             file_episode)
 
+        # Next Iteration Update
         file_base = file_title
 
 if __name__ == '__main__':
