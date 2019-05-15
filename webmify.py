@@ -2,12 +2,10 @@
 
 import re
 import sys
-import subprocess
 import tmdb_lookup
 import input_parser
 
 from pathlib import Path
-from collections import Counter
 from optparse import OptionParser, OptionGroup
 
 
@@ -46,7 +44,7 @@ def main():
     ffmpeg_opts.add_option('--threads',
                            action='store', type='string', dest='thread_count',
                            default='16',
-                           help='number of cpu threads to assign, default = 16')
+                           help='number of cpu threads, default = 16')
 
     parser.add_option_group(ffmpeg_opts)
 
@@ -67,19 +65,19 @@ def main():
     tmdb_opts.add_option('-t', '--title',
                          action='store', type='string', dest='media_title',
                          default='',
-                         help='movie or series title, default = file base name')
+                         help='movie or series title, default = file base')
 
     parser.add_option_group(tmdb_opts)
 
     parser.add_option('--delete',
                       action='store_true', dest='del_orig',
                       default=False,
-                      help='delete original file after encode, default = false')
+                      help='delete original file, default = false')
 
     parser.add_option('--dvd-order',
                       action='store_true', dest='dvd_order',
                       default=False,
-                      help='episode look-up based on dvd order, default = false')
+                      help='prefer dvd episode order, default = false')
 
     parser.add_option('-f', '--filename', '--file',
                       action='store', type='string', dest='out_filename',
@@ -99,7 +97,7 @@ def main():
     parser.add_option('--test',
                       action='store_true', dest='test_run_bool',
                       default=False,
-                      help='perform trial run to test matching and encode settings')
+                      help='perform test run for matching and encode settings')
 
     (options, args) = parser.parse_args()
 
