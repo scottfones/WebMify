@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 
-def get_title(file):
+def get_title(file: str) -> str:
     print(f'\nParsing Title: {file}')
 
     title_re = re.compile('^(.+?)[(.]')
@@ -14,7 +14,7 @@ def get_title(file):
     return title_found
 
 
-def get_season(file):
+def get_season(file: str) -> str:
     print(f'\nParsing Season: {file}')
 
     season_re = re.compile('[s,S]([0-9]+)')
@@ -30,7 +30,7 @@ def get_season(file):
     return season_found
 
 
-def get_episode(file):
+def get_episode(file: str) -> str:
     print(f'\nParsing Episode: {file}')
 
     episode_re = re.compile('[e,E]([0-9]+)')
