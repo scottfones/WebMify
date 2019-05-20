@@ -6,7 +6,7 @@ import tmdbsimple as tmdb
 tmdb.API_KEY = api_keys.tmdb_key
 
 
-def get_choice(search_response):
+def get_choice(search_response: dict) -> dict:
     print('\nMultiple matches found. Select from:')
 
     for index, result in enumerate(search_response['results']):
@@ -20,27 +20,27 @@ def get_choice(search_response):
     return search_response['results'][int(user_choice)]
 
 
-def find_movie(title):
+def find_movie(title: str) -> dict:
     search = tmdb.Search()
     return search.movie(query=title)
 
 
-def find_tv(title):
+def find_tv(title: str) -> dict:
     search = tmdb.Search()
     return search.tv(query=title)
 
 
-def find_tv_episode(media_info, season_num, episode_num):
+def find_tv_episode(media_info: dict, season_num: str, episode_num: str) -> dict:
     return tmdb.TV_Episodes(media_info['id'],
                             int(season_num),
                             int(episode_num)).info()
 
 
-def get_tv_metadata(show_info, ep_info):
+def get_tv_metadata(show_info: dict, ep_info: dict) -> tuple:
     return (show_info['name'], ep_info['name'], ep_info['overview'])
 
 
-def display_movie(movie_info):
+def display_movie(movie_info: dict):
     print(f"\nMovie URL:\nhttps://www.themoviedb.org/movie/{movie_info['id']}")
     print('\nMovie Info:')
     print(f"Title: {movie_info['title']}")
@@ -48,7 +48,7 @@ def display_movie(movie_info):
     print(f"Synopsis: {movie_info['overview']}")
 
 
-def display_tv_episode(show_info, ep_info):
+def display_tv_episode(show_info: dict, ep_info: dict):
     print(f"\nEpisode URL:\nhttps://www.themoviedb.org/tv/{show_info['id']}/season/{ep_info['season_number']}/episode/{ep_info['episode_number']}")
     print('\nEpisode Info:')
     print(f"Show: {show_info['name']}")
@@ -59,7 +59,7 @@ def display_tv_episode(show_info, ep_info):
     print(f"Episode Overview: {ep_info['overview']}")
 
 
-def look_up(title, season_num='', episode_num=''):
+def look_up(title: str, season_num: str='', episode_num: str='') -> list:
     print(f'\nTMDb Look-up: {title}')
 
     if season_num == '' or episode_num == '':
