@@ -2,13 +2,19 @@ import sys
 import api_keys
 import tmdbsimple as tmdb
 
-from typing import List, Tuple
+from typing import List, NoReturn, Tuple
 
 
 tmdb.API_KEY = api_keys.tmdb_key
 
 
 def get_choice(search_response: dict) -> dict:
+    """Obtain user choice for multiple search results.
+    Return specified result.
+
+    Parameters:
+    search_response -- raw search return from TMDb
+    """
     print('\nMultiple matches found. Select from:')
 
     for index, result in enumerate(search_response['results']):
@@ -27,26 +33,53 @@ def get_choice(search_response: dict) -> dict:
 
 
 def find_movie(title: str) -> dict:
+    """TMDb movie specific search.
+    Returns unprocessed api return.
+
+    Parameters:
+    title - movie title for query
+    """
     search = tmdb.Search()
     return search.movie(query=title)
 
 
 def find_tv(title: str) -> dict:
+    """TMDb tv specific search.
+    Returns unprocessed api return.
+
+    Parameters:
+    title - tv title for query
+    """
     search = tmdb.Search()
     return search.tv(query=title)
 
 
-def find_tv_episode(media_info: dict, season_num: str, episode_num: str) -> dict:
+def find_tv_episode(media_info: dict, season_num: str, ep_num: str) -> dict:
+    """TMDb tv search for specific episode.
+    Returns dict of episode information.
+
+    Parameters:
+    media_info -- TMDb TV show search response
+    season_num -- season number
+    ep_num -- episode number
+    """
     return tmdb.TV_Episodes(media_info['id'],
                             int(season_num),
-                            int(episode_num)).info()
+                            int(ep_num)).info()
 
 
 def get_tv_metadata(show_info: dict, ep_info: dict) -> tuple:
+    """Return metadata to be included with encoded file.
+
+    Parameters:
+    show_info -- TMDb TV show search response
+    ep_info -- TMDb Episode search response
+    """
     return (show_info['name'], ep_info['name'], ep_info['overview'])
 
 
-def display_movie(movie_info: dict):
+def display_movie(movie_info: dict) -> NoReturn:
+    """Display movie information"""
     print(f"\nMovie URL:\nhttps://www.themoviedb.org/movie/{movie_info['id']}")
     print('\nMovie Info:')
     print(f"Title: {movie_info['title']}")
@@ -54,7 +87,8 @@ def display_movie(movie_info: dict):
     print(f"Synopsis: {movie_info['overview']}")
 
 
-def display_tv_episode(show_info: dict, ep_info: dict):
+def display_tv_episode(show_info: dict, ep_info: dict) -> NoReturn:
+    """Display tv episode information"""
     print(f"\nEpisode URL:\nhttps://www.themoviedb.org/tv/"
           f"{show_info['id']}/season/{ep_info['season_number']}"
           f"/episode/{ep_info['episode_number']}")
@@ -68,6 +102,15 @@ def display_tv_episode(show_info: dict, ep_info: dict):
 
 
 def look_up(title: str, season_num: str='', episode_num: str='') -> list:
+    """Metadta look-up using TMDb. 
+    Includes logic to determine whether Movie or TV.
+    Returns list reresenting [movie/show, episode] information
+
+    Parameters:
+    title -- name of movie or tv show
+    season_num -- tv season, default to '' for movies
+    episode_num -- tv episode, default to '' for movies
+    """
     print(f'\nTMDb Look-up: {title}')
 
     if season_num == '' or episode_num == '':
