@@ -2,6 +2,8 @@ import sys
 import api_keys
 import tmdbsimple as tmdb
 
+from typing import List, Tuple
+
 
 tmdb.API_KEY = api_keys.tmdb_key
 
@@ -11,9 +13,13 @@ def get_choice(search_response: dict) -> dict:
 
     for index, result in enumerate(search_response['results']):
         try:
-            print(f"[{index}]: {result['name']}, {result['first_air_date'][:4]} (https://www.themoviedb.org/tv/{result['id']})")
+            print(f"[{index}]: {result['name']}, "
+                  f"{result['first_air_date'][:4]} "
+                  f"(https://www.themoviedb.org/tv/{result['id']})")
         except KeyError:
-            print(f"[{index}]: {result['title']}, {result['release_date'][:4]} (https://www.themoviedb.org/movie/{result['id']})")
+            print(f"[{index}]: {result['title']}, \
+                  {result['release_date'][:4]} \
+                  (https://www.themoviedb.org/movie/{result['id']})")
 
     user_choice = input('Result number: ')
 
@@ -49,7 +55,9 @@ def display_movie(movie_info: dict):
 
 
 def display_tv_episode(show_info: dict, ep_info: dict):
-    print(f"\nEpisode URL:\nhttps://www.themoviedb.org/tv/{show_info['id']}/season/{ep_info['season_number']}/episode/{ep_info['episode_number']}")
+    print(f"\nEpisode URL:\nhttps://www.themoviedb.org/tv/"
+          f"{show_info['id']}/season/{ep_info['season_number']}"
+          f"/episode/{ep_info['episode_number']}")
     print('\nEpisode Info:')
     print(f"Show: {show_info['name']}")
     print(f"Season: {ep_info['season_number']}")
