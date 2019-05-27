@@ -5,6 +5,10 @@ from pathlib import Path, PurePath
 
 
 def check_strip_path(file: str) -> str:
+    """Format input to string.
+    Input may be Path() or str. Return only
+    relevant infomation as str.
+    """
     if isinstance(file, PurePath):
         return file.name
     else:
@@ -12,6 +16,12 @@ def check_strip_path(file: str) -> str:
 
 
 def get_title(file: str) -> str:
+    """Return the base filename, assumed
+    to be the media title.
+
+    Parameters:
+    file -- Either string or Path() filename
+    """
     file = check_strip_path(file)
 
     title_re = re.compile('^(.+?)[(.]')
@@ -21,6 +31,12 @@ def get_title(file: str) -> str:
 
 
 def get_season(file: str) -> str:
+    """Search and return season number as str.
+    If none found, return empty string..
+
+    Parameters:
+    file -- Either string or Path() filename
+    """
     file = check_strip_path(file)
 
     season_re = re.compile('\W[s,S]([0-9]+)')
@@ -38,6 +54,12 @@ def get_season(file: str) -> str:
 
 
 def get_episode(file: str) -> str:
+    """Search and return episode number as str.
+    If none found, return empty string..
+
+    Parameters:
+    file -- Either string or Path() filename
+    """
     file = check_strip_path(file)
 
     episode_re = re.compile('\d[e,E]([0-9]+)')
@@ -54,18 +76,16 @@ def get_episode(file: str) -> str:
     return episode_found
 
 
-def get_season_episode(file: str) -> Tuple[str, str]:
-    return (get_season(file), get_episode(file))
-
-
-def get_title_season_episode(file: str) -> Tuple[str, str, str]:
-    return (get_title(file),
-            get_season(file),
-            get_episode(file))
-
-
 def is_movie(file: str) -> bool:
-    season_num, ep_num = get_season_episode(file)
+    """Parse file name for season or episode
+    information. If none is found, assume
+    movie and return True.
+
+    Parameters:
+    file -- Either string or Path() filename
+    """
+    season_num = get_season(file)
+    ep_num = get_episode(file)
 
     if not season_num and not ep_num:
         return True
