@@ -4,6 +4,7 @@ import re
 import sys
 import tmdb_lookup
 import input_parser
+import encode_object
 
 from pathlib import Path
 from optparse import OptionParser, OptionGroup
@@ -53,12 +54,12 @@ def main():
                             'These options modify TMDb search and metadata.')
 
     tmdb_opts.add_option('--episode',
-                         action='store', type='string', dest='tv_episode_num',
+                         action='store', type='string', dest='episode_num',
                          default='',
                          help='tv series episode number')
 
     tmdb_opts.add_option('--season',
-                         action='store', type='string', dest='tv_season_num',
+                         action='store', type='string', dest='season_num',
                          default='',
                          help='tv series season number')
 
@@ -104,41 +105,63 @@ def main():
     print(f'{args}')
     work_list = [Path(file) for file in args]
 
-    file_base = ''
+    repeat_title = ''
     for file in work_list:
         print('\nX        NEW ENCODE        X\n')
 
+        if input_parser.is_movie(file):
+            encode = encode_object.MovieObject(file,
+                                               title=options.media_title,
+                                               out_file=options.out_filename,
+                                               post_delete=options.del_orig)
+        else:
+            encode = encode_object.TVObject(file,
+                                             title=options.media_title,
+                                             season_num=options.season_num,
+                                             episode_num=options.episode_num,
+                                             out_file=options.out_filename,
+                                             post_delete=options.del_orig)
+
+        """
+        encode = encode_object.EncodeObject(file)
+
         # Construct Title and Episode Information
         if options.media_title == '':
-            file_title = input_parser.get_title(file.name)
+            encode.title = input_parser.get_title(file.name)
         else:
-            file_title = options.media_title
+            encode.title = options.media_title
 
         if options.tv_season_num == '':
-            file_season = input_parser.get_season(file.name)
+            encode.season_num = input_parser.get_season(file.name)
         else:
-            file_season = options.tv_season_num
+            encode.title_num = options.tv_season_num
 
         if options.tv_episode_num == '':
-            file_episode = input_parser.get_episode(file.name)
+            encode.episode_num = input_parser.get_episode(file.name)
         else:
-            file_episode = options.tv_episode_num
+            encode.episode_num = options.tv_episode_num
 
         # Look-up Movie or Episode Information
         # skip title look-up if file base matches previous loop
-        if file_base == file_title and file_season != '':
+        if repeat_title == encode.title:
             tmdb_info[1] = tmdb_lookup.find_tv_episode(tmdb_info[0],
-                                                       file_season,
-                                                       file_episode)
+                                                       encode.season_num,
+                                                       encode.episode_num)
             tmdb_lookup.display_tv_episode(tmdb_info[0],
                                            tmdb_info[1])
         else:
-            tmdb_info = tmdb_lookup.look_up(file_title,
-                                            file_season,
-                                            file_episode)
+            tmdb_info = tmdb_lookup.look_up(encode.title,
+                                            encode.season_num,
+                                            encode.episode_num)
+
+        encode.overview = tmdb
+        encode.metadata = tmdb_lookup.get_tv_metadata(tmdb_info[0], tmdb_info[1])
 
         # Next Iteration Update
-        file_base = file_title
+        repeat_title = encode.title
+        """
+
+        print(encode)
 
 if __name__ == '__main__':
     main()

@@ -23,9 +23,9 @@ def get_choice(search_response: dict) -> dict:
                   f"{result['first_air_date'][:4]} "
                   f"(https://www.themoviedb.org/tv/{result['id']})")
         except KeyError:
-            print(f"[{index}]: {result['title']}, \
-                  {result['release_date'][:4]} \
-                  (https://www.themoviedb.org/movie/{result['id']})")
+            print(f"[{index}]: {result['title']}, "
+                  f"{result['release_date'][:4]} "
+                  f"(https://www.themoviedb.org/movie/{result['id']})")
 
     user_choice = input('Result number: ')
 
@@ -68,14 +68,14 @@ def find_tv_episode(media_info: dict, season_num: str, ep_num: str) -> dict:
                             int(ep_num)).info()
 
 
-def get_tv_metadata(show_info: dict, ep_info: dict) -> tuple:
+def get_tv_metadata(show_info: dict, ep_info: dict) -> List[str]:
     """Return metadata to be included with encoded file.
 
     Parameters:
     show_info -- TMDb TV show search response
     ep_info -- TMDb Episode search response
     """
-    return (show_info['name'], ep_info['name'], ep_info['overview'])
+    return [show_info['name'], ep_info['name'], ep_info['overview']]
 
 
 def display_movie(movie_info: dict) -> NoReturn:
@@ -102,7 +102,7 @@ def display_tv_episode(show_info: dict, ep_info: dict) -> NoReturn:
 
 
 def look_up(title: str, season_num: str='', episode_num: str='') -> list:
-    """Metadta look-up using TMDb. 
+    """Metadta look-up using TMDb.
     Includes logic to determine whether Movie or TV.
     Returns list reresenting [movie/show, episode] information
 
@@ -137,3 +137,18 @@ def look_up(title: str, season_num: str='', episode_num: str='') -> list:
         display_tv_episode(media_info, ep_info)
 
         return [media_info, ep_info]
+
+
+def get_movie_info(title: str) -> Tuple[str, str, str]:
+    search_response = find_movie(title)
+
+    if search_response['total_results'] == 0:
+        sys.exit('No match found. Try modifying the title flag.')
+    elif search_response['total_results'] == 1:
+        movie_info = search_response['results'][0]
+    else:
+        movie_info = get_choice(search_response)
+
+    return (movie_info['title'],
+            movie_info['release_date'],
+            movie_info['overview'])
