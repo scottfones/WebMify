@@ -122,10 +122,8 @@ def main():
                                              out_file=options.out_filename,
                                              post_delete=options.del_orig)
 
-        """ 
         # Next Iteration Update
-        repeat_title = encode.title
-        """
+        repeat_title = input_parser.get_title(file)
 
         print(encode)
 
