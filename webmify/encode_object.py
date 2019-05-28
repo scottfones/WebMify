@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import List, Tuple
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-# from abc import ABCMeta, abstractmethod
 
 
 @dataclass
