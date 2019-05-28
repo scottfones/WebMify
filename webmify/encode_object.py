@@ -1,5 +1,6 @@
 import input_parser
 import tmdb_lookup
+import thetvdb_lookup
 
 from pathlib import Path
 from typing import List, Tuple
@@ -59,9 +60,9 @@ class MovieObject(EncodeObject):
 
 @dataclass
 class TVObject(EncodeObject):
-    season_num: str = ''
-    episode_num: str = ''
-    episode_title: str = ''
+    s_num: str = ''
+    ep_num: str = ''
+    ep_title: str = ''
 
     v_codec: str = 'vp9'
     a_codec: str = 'opus'
@@ -70,8 +71,14 @@ class TVObject(EncodeObject):
         if not self.title:
             self.title = input_parser.get_title(self.in_file)
 
-        if not self.season_num:
-            self.season_num = input_parser.get_season(self.in_file)
+        if not self.s_num:
+            self.s_num = input_parser.get_season(self.in_file)
 
-        if not self.episode_num:
-            self.episode_num = input_parser.get_episode(self.in_file)
+        if not self.ep_num:
+            self.ep_num = input_parser.get_episode(self.in_file)
+
+        self.title = thetvdb_lookup.get_tv_title(self.title)
+
+        self.ep_title, self.overview, self.air_date = thetvdb_lookup.get_tv_info(self.title,
+                                                                                 self.s_num,
+                                                                                 self.ep_num)
