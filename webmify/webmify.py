@@ -117,46 +117,12 @@ def main():
         else:
             encode = encode_object.TVObject(file,
                                              title=options.media_title,
-                                             season_num=options.season_num,
-                                             episode_num=options.episode_num,
+                                             s_num=options.season_num,
+                                             ep_num=options.episode_num,
                                              out_file=options.out_filename,
                                              post_delete=options.del_orig)
 
-        """
-        encode = encode_object.EncodeObject(file)
-
-        # Construct Title and Episode Information
-        if options.media_title == '':
-            encode.title = input_parser.get_title(file.name)
-        else:
-            encode.title = options.media_title
-
-        if options.tv_season_num == '':
-            encode.season_num = input_parser.get_season(file.name)
-        else:
-            encode.title_num = options.tv_season_num
-
-        if options.tv_episode_num == '':
-            encode.episode_num = input_parser.get_episode(file.name)
-        else:
-            encode.episode_num = options.tv_episode_num
-
-        # Look-up Movie or Episode Information
-        # skip title look-up if file base matches previous loop
-        if repeat_title == encode.title:
-            tmdb_info[1] = tmdb_lookup.find_tv_episode(tmdb_info[0],
-                                                       encode.season_num,
-                                                       encode.episode_num)
-            tmdb_lookup.display_tv_episode(tmdb_info[0],
-                                           tmdb_info[1])
-        else:
-            tmdb_info = tmdb_lookup.look_up(encode.title,
-                                            encode.season_num,
-                                            encode.episode_num)
-
-        encode.overview = tmdb
-        encode.metadata = tmdb_lookup.get_tv_metadata(tmdb_info[0], tmdb_info[1])
-
+        """ 
         # Next Iteration Update
         repeat_title = encode.title
         """
