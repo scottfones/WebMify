@@ -10,7 +10,9 @@ from dataclasses import dataclass, field
 
 @dataclass
 class EncodeObject(ABC):
-    """Class for accumulating and constructing encoding parameters."""
+    """Abstract Class for accumulating and
+    constructing encoding parameters.
+    """
 
     in_file: str = ''
     title: str = ''
@@ -48,6 +50,7 @@ class EncodeObject(ABC):
 
 @dataclass
 class MovieObject(EncodeObject):
+    """Movie specific EncodeObject class"""
     v_codec: str = 'x264'
     a_codec: str = 'aac'
 
@@ -59,6 +62,7 @@ class MovieObject(EncodeObject):
 
 @dataclass
 class TVObject(EncodeObject):
+    """TV Specific Encode Object Class"""
     s_num: str = ''
     ep_num: str = ''
     ep_title: str = ''
