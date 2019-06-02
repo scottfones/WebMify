@@ -87,25 +87,25 @@ class OpusStream(StreamObject):
 
     def _set_metadata(self):
         metadata_dict = {'1': ['-metadata:s:a:0', f'title="{lang_dict[self.stream_lang]} '
-                                                  '- Mono - Opus - 96kbps"',
+                                                  '- Opus Mono - 96kbps"',
                                '-metadata:s:a:0', f'language={self.stream_lang}'],
                          '2': ['-metadata:s:a:0', f'title="{lang_dict[self.stream_lang]} '
-                                                  '- Stereo - Opus - 128kbps"',
+                                                  '- Opus Stereo - 128kbps"',
                                '-metadata:s:a:0', f'language={self.stream_lang}'],
                          '4': ['-metadata:s:a:0', f'title="{lang_dict[self.stream_lang]} '
-                                                  '- Stereo - Opus - 128kbps"',
+                                                  '- Opus Stereo - 128kbps"',
                                '-metadata:s:a:0', f'language={self.stream_lang}'],
                          '6': ['-metadata:s:a:0', f'title="{lang_dict[self.stream_lang]} '
-                                                  '- Surround Sound - 5.1 - Opus - 256kbps"',
+                                                  '- Opus Surround Sound - 5.1 - 256kbps"',
                                '-metadata:s:a:0', f'language={self.stream_lang}',
                                '-metadata:s:a:1', f'title="{lang_dict[self.stream_lang]} '
-                                                   '- Stereo Downmix - Opus - 128kbps"',
+                                                   '- Opus Stereo Downmix - 128kbps"',
                                '-metadata:s:a:1', f'language={self.stream_lang}'],
                          '8': ['-metadata:s:a:0', f'title="{lang_dict[self.stream_lang]} '
-                                                  '- Surround Sound - 7.1 - Opus - 450kbps"',
+                                                  '- Opus Surround Sound - 7.1 - 450kbps"',
                                '-metadata:s:a:0', f'language={self.stream_lang}',
                                '-metadata:s:a:1', f'title="{lang_dict[self.stream_lang]} '
-                                                   '- Stereo Downmix - Opus - 128kbps"',
+                                                   '- Opus Stereo Downmix - 128kbps"',
                                '-metadata:s:a:1', f'language={self.stream_lang}']}
 
         self.metadata = metadata_dict[self.channel_num]

@@ -28,25 +28,8 @@ class EncodeObject(ABC):
     a_encode: List[str] = field(default_factory=list)
     out_file: str = ''
     post_delete: bool = False
+    delete_list: List[str] = field(default_factory=list)
 
-    def _ready_check(self) -> Tuple[bool, str]:
-        """Check for non-default values in all required variables.
-
-        Return False if any required values are missing.
-        """
-
-        if not self.in_file:
-            return (False, 'in_file')
-        elif not self.media_maps:
-            return (False, 'media_maps')
-        elif not self.v_encode:
-            return (False, 'v_encode')
-        elif not self.a_encode:
-            return (False, 'a_encode')
-        elif not self.out_file:
-            return (False, 'out_file')
-        else:
-            return (True, '0')
 
 @dataclass
 class MovieObject(EncodeObject):
@@ -59,6 +42,7 @@ class MovieObject(EncodeObject):
             self.title = input_parser.get_title(self.in_file)
 
         self.title, self.air_date, self.overview = tmdb_lookup.get_movie_info(self.title)
+
 
 @dataclass
 class TVObject(EncodeObject):
@@ -80,8 +64,16 @@ class TVObject(EncodeObject):
         if not self.ep_num:
             self.ep_num = input_parser.get_episode(self.in_file)
 
-        self.title = thetvdb_lookup.get_tv_title(self.title)
+        if self.prev_job:
+            self.cur_base = input_parser.get_title(self.in_file)
+            self.prev_base = input_parser.get_title(self.prev_job.in_file)
+
+        if self.prev_job and self.prev_base == self.cur_base:
+            self.title = self.prev_job.title
+        else:
+            self.title = thetvdb_lookup.get_tv_title(self.title)
 
         self.ep_title, self.overview, self.air_date = thetvdb_lookup.get_tv_info(self.title,
                                                                                  self.s_num,
                                                                                  self.ep_num)
+
