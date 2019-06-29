@@ -1,11 +1,13 @@
-import input_parser
-import tmdb_lookup
-import thetvdb_lookup
+import stream_object
 
-from pathlib import Path
+import re
+import subprocess
+from pathlib import Path, PurePath
 from typing import List, Tuple
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+
+ffmpeg_bin = 'ffmpeg'
 
 
 @dataclass
@@ -14,66 +16,124 @@ class EncodeObject(ABC):
     constructing encoding parameters.
     """
 
-    in_file: str = ''
+    in_file: PurePath
+    out_file: PurePath = Path('out.mkv')
+    encode_cmd: List[str] = field(default_factory=list)
+
     title: str = ''
-    air_date: str = ''
-    overview: str = ''
-    v_codec: str = ''
-    a_codec: str = ''
-    hdr: bool = False
-    v_filters: List[str] = field(default_factory=list)
-    a_filters: List[str] = field(default_factory=list)
-    media_maps: List[str] = field(default_factory=list)
-    v_encode: List[str] = field(default_factory=list)
-    a_encode: List[str] = field(default_factory=list)
-    out_file: str = ''
-    post_delete: bool = False
-    delete_list: List[str] = field(default_factory=list)
+    stream_id: str = '0'
+
+    def __post_init__(self):
+        if not isinstance(self.in_file, PurePath):
+            self.in_file = Path(self.in_file)
+
+        if not isinstance(self.out_file, PurePath):
+            self.out_file = Path(self.out_file)
+
+    @abstractmethod
+    def do_encode(self) -> None:
+        pass
 
 
 @dataclass
-class MovieObject(EncodeObject):
-    """Movie specific EncodeObject class"""
-    v_codec: str = 'x264'
-    a_codec: str = 'aac'
-
+class NormalizeFirstPassEncode(EncodeObject):
     def __post_init__(self):
-        if not self.title:
-            self.title = input_parser.get_title(self.in_file)
+        super().__post_init__()
 
-        self.title, self.air_date, self.overview = tmdb_lookup.get_movie_info(self.title)
+        self.downmix_encode = StereoDownmixEncode(in_file=self.in_file,
+                                                  out_file=self.out_file,
+                                                  stream_id=self.stream_id)
+
+        self.norm_first_stream = stream_object.NormalizedFirstPassStream(self.downmix_encode.out_file,
+                                                                         self.stream_id)
+
+        self.do_encode()
+
+    def _get_norm_i(self):
+        norm_i_re = re.compile('\"input_i\" : \"(.+?)\"')
+        self.norm_i = norm_i_re.search(self.comp_proc.stderr).groups()[0]
+
+    def _get_norm_tp(self):
+        norm_tp_re = re.compile('\"input_tp\" : \"(.+?)\"')
+        self.norm_tp = norm_tp_re.search(self.comp_proc.stderr).groups()[0]
+
+    def _get_norm_lra(self):
+        norm_lra_re = re.compile('\"input_lra\" : \"(.+?)\"')
+        self.norm_lra = norm_lra_re.search(self.comp_proc.stderr).groups()[0]
+
+    def _get_norm_thresh(self):
+        norm_thresh_re = re.compile('\"input_thresh\" : \"(.+?)\"')
+        self.norm_thresh = norm_thresh_re.search(self.comp_proc.stderr).groups()[0]
+
+    def _get_norm_offset(self):
+        norm_offset_re = re.compile('\"target_offset\" : \"(.+?)\"')
+        self.norm_offset = norm_offset_re.search(self.comp_proc.stderr).groups()[0]
+
+    def do_encode(self):
+        print('\nRunning first normalization pass. Please be patient.\n')
+
+        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.downmix_encode.out_file}']
+        self.encode_cmd += self.norm_first_stream.filter_flags
+        self.encode_cmd += self.norm_first_stream.metadata
+        self.encode_cmd.append('-')
+        self.comp_proc = subprocess.run(self.encode_cmd, capture_output=True, text=True)
+
+        self._get_norm_i()
+        self._get_norm_tp()
+        self._get_norm_lra()
+        self._get_norm_thresh()
+        self._get_norm_offset()
 
 
 @dataclass
-class TVObject(EncodeObject):
-    """TV Specific Encode Object Class"""
-    s_num: str = ''
-    ep_num: str = ''
-    ep_title: str = ''
-
-    v_codec: str = 'vp9'
-    a_codec: str = 'opus'
-
+class NormalizeSecondPassEncode(EncodeObject):
     def __post_init__(self):
-        if not self.title:
-            self.title = input_parser.get_title(self.in_file)
+        super().__post_init__()
 
-        if not self.s_num:
-            self.s_num = input_parser.get_season(self.in_file)
+        self.out_file = self.out_file.parent / (self.out_file.stem + '_norm.mkv')
 
-        if not self.ep_num:
-            self.ep_num = input_parser.get_episode(self.in_file)
+        self.norm_first_encode = NormalizeFirstPassEncode(in_file = self.in_file,
+                                                          out_file = self.out_file,
+                                                          stream_id = self.stream_id)
 
-        if self.prev_job:
-            self.cur_base = input_parser.get_title(self.in_file)
-            self.prev_base = input_parser.get_title(self.prev_job.in_file)
+        self.norm_second_stream = stream_object.NormalizedSecondPassStream(self.norm_first_encode.downmix_encode.out_file,
+                                                                           self.stream_id,
+                                                                           norm_i=self.norm_first_encode.norm_i,
+                                                                           norm_tp=self.norm_first_encode.norm_tp,
+                                                                           norm_lra=self.norm_first_encode.norm_lra,
+                                                                           norm_thresh=self.norm_first_encode.norm_thresh,
+                                                                           norm_tar_off=self.norm_first_encode.norm_offset)                                                          
 
-        if self.prev_job and self.prev_base == self.cur_base:
-            self.title = self.prev_job.title
-        else:
-            self.title = thetvdb_lookup.get_tv_title(self.title)
+        self.do_encode()
 
-        self.ep_title, self.overview, self.air_date = thetvdb_lookup.get_tv_info(self.title,
-                                                                                 self.s_num,
-                                                                                 self.ep_num)
+    def do_encode(self):
+        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
+        self.encode_cmd += self.norm_second_stream.filter_flags
+        self.encode_cmd += self.norm_second_stream.encoder_flags
+        self.encode_cmd += self.norm_second_stream.metadata
+        self.encode_cmd.append(self.out_file)
 
+        self.comp_proc = subprocess.run(self.encode_cmd)
+
+
+@dataclass
+class StereoDownmixEncode(EncodeObject):
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.out_file = self.out_file.parent / (self.out_file.stem + '_downmix.mkv')
+
+        self.down_stream = stream_object.StereoDownmixStream(self.in_file,
+                                                             self.stream_id)
+
+        self.do_encode()
+
+    def do_encode(self):
+        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
+        self.encode_cmd += self.down_stream.filter_flags
+        self.encode_cmd += self.down_stream.stream_maps
+        self.encode_cmd += self.down_stream.encoder_flags
+        self.encode_cmd += self.down_stream.metadata
+        self.encode_cmd.append(self.out_file)
+
+        self.comp_proc = subprocess.run(self.encode_cmd)
