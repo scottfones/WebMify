@@ -1,4 +1,5 @@
 import stream_object
+import stream_helpers
 
 import re
 import subprocess
@@ -40,11 +41,14 @@ class NormalizeFirstPassEncode(EncodeObject):
     def __post_init__(self):
         super().__post_init__()
 
-        self.downmix_encode = StereoDownmixEncode(in_file=self.in_file,
-                                                  out_file=self.out_file,
-                                                  stream_id=self.stream_id)
+        self.stream_channels = stream_helpers.get_audio_ch(self.in_file, self.stream_id)
+        if int(self.stream_channels) > 2:
+            self.downmix_encode = StereoDownmixEncode(in_file=self.in_file,
+                                                      out_file=self.out_file,
+                                                      stream_id=self.stream_id)
+            self.in_file = self.downmix_encode.out_file
 
-        self.norm_first_stream = stream_object.NormalizedFirstPassStream(self.downmix_encode.out_file,
+        self.norm_first_stream = stream_object.NormalizedFirstPassStream(self.in_file,
                                                                          self.stream_id)
 
         self.do_encode()
@@ -70,7 +74,8 @@ class NormalizeFirstPassEncode(EncodeObject):
         self.norm_offset = norm_offset_re.search(self.comp_proc.stderr).groups()[0]
 
     def do_encode(self):
-        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.downmix_encode.out_file}']
+        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
+        self.encode_cmd += self.norm_first_stream.stream_maps
         self.encode_cmd += self.norm_first_stream.filter_flags
         self.encode_cmd += self.norm_first_stream.metadata
         self.encode_cmd.append('-')
@@ -91,30 +96,78 @@ class NormalizeSecondPassEncode(EncodeObject):
     def __post_init__(self):
         super().__post_init__()
 
-        self.norm_first_encode = NormalizeFirstPassEncode(in_file = self.in_file,
-                                                          out_file = self.out_file,
-                                                          stream_id = self.stream_id)
+        self.norm_first_encode = NormalizeFirstPassEncode(in_file=self.in_file,
+                                                          out_file=self.out_file,
+                                                          stream_id=self.stream_id)
 
-        self.norm_second_stream = stream_object.NormalizedSecondPassStream(self.norm_first_encode.downmix_encode.out_file,
+        self.norm_second_stream = stream_object.NormalizedSecondPassStream(self.norm_first_encode.in_file,
                                                                            self.stream_id,
                                                                            norm_i=self.norm_first_encode.norm_i,
                                                                            norm_tp=self.norm_first_encode.norm_tp,
                                                                            norm_lra=self.norm_first_encode.norm_lra,
                                                                            norm_thresh=self.norm_first_encode.norm_thresh,
-                                                                           norm_tar_off=self.norm_first_encode.norm_offset)                                                          
+                                                                           norm_tar_off=self.norm_first_encode.norm_offset)
 
         self.out_file = self.out_file.parent / (self.out_file.stem + '_norm.mkv')
 
         self.do_encode()
 
     def do_encode(self):
-        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.norm_first_encode.downmix_encode.out_file}']
+        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.norm_first_encode.in_file}']
         self.encode_cmd += self.norm_second_stream.filter_flags
         self.encode_cmd += self.norm_second_stream.encoder_flags
         self.encode_cmd += self.norm_second_stream.metadata
         self.encode_cmd.append(self.out_file)
 
         print('\n\nRunning: Second Normalization Pass')
+        print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
+        self.comp_proc = subprocess.run(self.encode_cmd)
+
+
+@dataclass
+class OpusNormalizedDownmixEncode(EncodeObject):
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.norm_second_encode = NormalizeSecondPassEncode(in_file=self.in_file,
+                                                            out_file=self.out_file,
+                                                            stream_id=self.stream_id)
+
+        self.cur_lra = self.norm_second_encode.norm_first_encode.norm_lra
+
+        self._work_lra()
+
+        self.out_file = self.out_file.parent / (self.out_file.stem + '_norm.opus')
+        self.opus_stream = stream_object.OpusNormalizedDownmixStream(in_file=self.norm_second_encode.out_file,
+                                                                     stream_id='0')
+
+        self.do_encode()
+
+    def _work_lra(self):
+        self.norm_count = 1
+
+        while float(self.cur_lra) > 18.5:
+            self.old_name = self.norm_second_encode.out_file.parent + (self.norm_second_encode.out_file.stem + '_old.mkv')
+            self.old_out = self.norm_second_encode.out_file.rename(self.old_name)
+
+            self.norm_second_encode = NormalizeSecondPassEncode(in_file=self.old_out,
+                                                                out_file=self.out_file,
+                                                                stream_id=self.stream_id)
+
+            self.cur_lra = self.norm_second_encode.norm_first_encode.norm_lra
+            self.norm_count += 1
+
+            if self.norm_count == 4:
+                break
+
+    def do_encode(self):
+        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.norm_second_encode.out_file}']
+        self.encode_cmd += self.opus_stream.filter_flags
+        self.encode_cmd += self.opus_stream.encoder_flags
+        self.encode_cmd += self.opus_stream.metadata
+        self.encode_cmd.append(self.out_file)
+
+        print('\n\nRunning: Opus Normalized Downmix Encode')
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
 
