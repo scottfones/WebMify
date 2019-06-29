@@ -151,13 +151,13 @@ class OpusNormalizedDownmixEncode(EncodeObject):
 
         while float(self.cur_lra) > 18.5:
             self.old_name = self.norm_second_encode.out_file.parent / (self.norm_second_encode.out_file.stem + '_old.mkv')
-            self.old_out = self.norm_second_encode.out_file.rename(self.old_name)
+            self.norm_second_encode.out_file.rename(self.old_name)
 
-            self.norm_second_encode = NormalizeSecondPassEncode(in_file=self.old_out,
+            self.norm_second_encode = NormalizeSecondPassEncode(in_file=self.old_name,
                                                                 out_file=self.out_file,
                                                                 stream_id=self.stream_id)
 
-            self.cur_lra = self.norm_second_encode.norm_first_encode.norm_lra
+            self.cur_lra = self.norm_second_encode.norm_first_encode.out_lra
             self.norm_count += 1
 
             if self.norm_count == 4:
