@@ -65,6 +65,9 @@ class NormalizeFirstPassEncode(EncodeObject):
         norm_lra_re = re.compile('\"input_lra\" : \"(.+?)\"')
         self.norm_lra = norm_lra_re.search(self.comp_proc.stderr).groups()[0]
 
+        out_lra_re = re.compile('\"output_lra\" : \"(.+?)\"')
+        self.out_lra = out_lra_re.search(self.comp_proc.stderr).groups()[0]
+
     def _get_norm_thresh(self):
         norm_thresh_re = re.compile('\"input_thresh\" : \"(.+?)\"')
         self.norm_thresh = norm_thresh_re.search(self.comp_proc.stderr).groups()[0]
@@ -133,7 +136,7 @@ class OpusNormalizedDownmixEncode(EncodeObject):
                                                             out_file=self.out_file,
                                                             stream_id=self.stream_id)
 
-        self.cur_lra = self.norm_second_encode.norm_first_encode.norm_lra
+        self.cur_lra = self.norm_second_encode.norm_first_encode.out_lra
 
         self._work_lra()
 
@@ -147,7 +150,7 @@ class OpusNormalizedDownmixEncode(EncodeObject):
         self.norm_count = 1
 
         while float(self.cur_lra) > 18.5:
-            self.old_name = self.norm_second_encode.out_file.parent + (self.norm_second_encode.out_file.stem + '_old.mkv')
+            self.old_name = self.norm_second_encode.out_file.parent / (self.norm_second_encode.out_file.stem + '_old.mkv')
             self.old_out = self.norm_second_encode.out_file.rename(self.old_name)
 
             self.norm_second_encode = NormalizeSecondPassEncode(in_file=self.old_out,
