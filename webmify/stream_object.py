@@ -123,7 +123,7 @@ class NormalizedSecondPassStream(AudioStream):
                                     f'measured_I={self.norm_i}:'
                                     f'measured_LRA={self.norm_lra}:'
                                     f'measured_tp={self.norm_tp}:'
-                                    f'measured_thresh={self.norm_tar_off}:'
+                                    f'measured_thresh={self.norm_thresh}:'
                                     f'offset={self.norm_tar_off}:'
                                     'print_format=json']
 
