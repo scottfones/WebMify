@@ -76,7 +76,7 @@ class NormalizeFirstPassEncode(EncodeObject):
         self.encode_cmd.append('-')
 
         print('\n\nRunning: First Normalization Pass - Please Be Patient')
-        print(f"Command: {' '.join(self.encode_cmd)}\n")
+        print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd, capture_output=True, text=True)
 
         self._get_norm_i()
@@ -115,7 +115,7 @@ class NormalizeSecondPassEncode(EncodeObject):
         self.encode_cmd.append(self.out_file)
 
         print('\n\nRunning: Second Normalization Pass')
-        print(f"Command: {' '.join(self.encode_cmd)}\n")
+        print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
 
 
@@ -140,5 +140,5 @@ class StereoDownmixEncode(EncodeObject):
         self.encode_cmd.append(self.out_file)
 
         print('\n\nRunning: Stereo Downmix')
-        print(f"Command: {' '.join(self.encode_cmd)}\n")
+        print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
