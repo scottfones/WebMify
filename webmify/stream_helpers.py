@@ -28,7 +28,7 @@ def get_audio_lang(input_file: str, audio_id: str) -> str:
     audi_id - relative audio stream id [0...]
     """
     audio_lang_probe_cmd = ['ffprobe', f'{input_file}', '-loglevel',
-                            'error', '-select_streams', f'a:{audio_id}', 
+                            'error', '-select_streams', f'a:{audio_id}',
                             '-show_entries', 'stream_tags=language',
                             '-of', 'default=nw=1:nk=1']
 
