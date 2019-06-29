@@ -70,12 +70,13 @@ class NormalizeFirstPassEncode(EncodeObject):
         self.norm_offset = norm_offset_re.search(self.comp_proc.stderr).groups()[0]
 
     def do_encode(self):
-        print('\nRunning first normalization pass. Please be patient.\n')
-
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.downmix_encode.out_file}']
         self.encode_cmd += self.norm_first_stream.filter_flags
         self.encode_cmd += self.norm_first_stream.metadata
         self.encode_cmd.append('-')
+
+        print('\n\nRunning: First Normalization Pass - Please Be Patient')
+        print(f'Command: {' '.join(self.encode_cmd)}\n')
         self.comp_proc = subprocess.run(self.encode_cmd, capture_output=True, text=True)
 
         self._get_norm_i()
@@ -90,8 +91,6 @@ class NormalizeSecondPassEncode(EncodeObject):
     def __post_init__(self):
         super().__post_init__()
 
-        self.out_file = self.out_file.parent / (self.out_file.stem + '_norm.mkv')
-
         self.norm_first_encode = NormalizeFirstPassEncode(in_file = self.in_file,
                                                           out_file = self.out_file,
                                                           stream_id = self.stream_id)
@@ -104,6 +103,8 @@ class NormalizeSecondPassEncode(EncodeObject):
                                                                            norm_thresh=self.norm_first_encode.norm_thresh,
                                                                            norm_tar_off=self.norm_first_encode.norm_offset)                                                          
 
+        self.out_file = self.out_file.parent / (self.out_file.stem + '_norm.mkv')
+
         self.do_encode()
 
     def do_encode(self):
@@ -113,6 +114,8 @@ class NormalizeSecondPassEncode(EncodeObject):
         self.encode_cmd += self.norm_second_stream.metadata
         self.encode_cmd.append(self.out_file)
 
+        print('\n\nRunning: Second Normalization Pass')
+        print(f'Command: {' '.join(self.encode_cmd)}\n')
         self.comp_proc = subprocess.run(self.encode_cmd)
 
 
@@ -136,4 +139,6 @@ class StereoDownmixEncode(EncodeObject):
         self.encode_cmd += self.down_stream.metadata
         self.encode_cmd.append(self.out_file)
 
+        print('\n\nRunning: Stereo Downmix')
+        print(f'Command: {' '.join(self.encode_cmd)}\n')
         self.comp_proc = subprocess.run(self.encode_cmd)
