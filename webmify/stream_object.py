@@ -1,3 +1,4 @@
+import settings
 import stream_helpers
 
 from pathlib import Path, PurePath
@@ -226,6 +227,7 @@ class VideoStream(StreamObject, ABC):
 
     autocrop: bool = False
     burn_subs: bool = False
+    cpu_threads: str = settings.cpu_threads
     denoise: bool = False
     hdr_to_sdr: bool = False
 
