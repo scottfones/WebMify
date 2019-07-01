@@ -84,7 +84,7 @@ class NormalizeFirstPassEncode(EncodeObject):
         self.encode_cmd += self.norm_first_stream.metadata
         self.encode_cmd.append('-')
 
-        print('\n\nRunning: First Normalization Pass - Please Be Patient')
+        print('\n\nRunning: Normalization First Pass - Please Be Patient')
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd, capture_output=True, text=True)
 
@@ -123,7 +123,7 @@ class NormalizeSecondPassEncode(EncodeObject):
         self.encode_cmd += self.norm_second_stream.metadata
         self.encode_cmd.append(self.out_file)
 
-        print('\n\nRunning: Second Normalization Pass')
+        print('\n\nRunning: Normalization Second Pass')
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
 
