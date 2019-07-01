@@ -199,3 +199,48 @@ class StereoDownmixEncode(EncodeObject):
         print('\n\nRunning: Stereo Downmix')
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
+
+###################################
+########                   ########
+########   Video Encodes   ########
+########                   ########
+###################################
+
+
+@dataclass
+class VP9Encode(EncodeObject):
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.out_file = self.out_file.parent / (self.out_file.stem + '_vp9.mkv')
+
+        self.vp9_stream = stream_object.VP9Stream(self.in_file, self.stream_id)
+
+        self.do_encode()
+
+    def do_encode(self):
+        self.encode_cmd = [f'{ffmpeg_bin}', '-y', '-i', f'{self.in_file}']
+        if hasattr(self.vp9_stream, 'filter_flags'):
+            self.encode_cmd += self.vp9_stream.filter_flags
+        self.encode_cmd += self.vp9_stream.stream_maps
+        self.encode_cmd += self.vp9_stream.encoder_flags
+        self.encode_cmd += self.vp9_stream.metadata
+        self.encode_cmd += ['-pass', '1', '-f', 'webm', '-strict',
+                            'experimental', '/dev/null']
+
+        print('\n\nRunning: VP9 First Pass')
+        print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
+        self.comp_proc = subprocess.run(self.encode_cmd)
+
+        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
+        if hasattr(self.vp9_stream, 'filter_flags'):
+            self.encode_cmd += self.vp9_stream.filter_flags
+        self.encode_cmd += self.vp9_stream.stream_maps
+        self.encode_cmd += self.vp9_stream.encoder_flags
+        self.encode_cmd += self.vp9_stream.metadata
+        self.encode_cmd += ['-pass', '2', '-f', 'webm', '-strict',
+                            'experimental', f'{self.out_file}']
+
+        print('\n\nRunning: VP9 Second Pass')
+        print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
+        self.comp_proc = subprocess.run(self.encode_cmd)
