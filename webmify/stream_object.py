@@ -11,7 +11,8 @@ lang_dict = {'chi': 'Chinese',
              'fre': 'French',
              'ger': 'German',
              'jpn': 'Japanese',
-             'spn': 'Spanish'}
+             'spn': 'Spanish',
+             'und': ''}
 """Communal dict to translate language codes."""
 
 
@@ -209,3 +210,32 @@ class StereoDownmixStream(AudioStream):
 
     def _set_stream_maps(self):
         self.stream_maps = ['-map', '[dm]']
+
+
+###################################
+########                   ########
+########   Video Streams   ########
+########                   ########
+###################################
+
+@dataclass
+class VideoStream(StreamObject, ABC):
+    """Abstract base class for all classes handling video streams.
+
+    """
+
+    autocrop: bool = False
+    burn_subs: bool = False
+    denoise: bool = False
+    hdr_to_sdr: bool = False
+
+    def __post_init__(self):
+        super().__post_init__()
+
+    def _set_stream_maps(self):
+        self.stream_maps = ['-map', f'0:v:{stream_id}']
+
+
+@dataclass
+class VP9Stream(VideoStream):
+    pass
