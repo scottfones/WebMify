@@ -243,6 +243,7 @@ class VideoStream(StreamObject, ABC):
             self.filter_flags[1] += ','
 
     def _set_filter(self):
+        print('setting filter')
         self.any_filter = (self.autocrop or
                            self.burn_subs or
                            self.denoise or
@@ -265,13 +266,13 @@ class VideoStream(StreamObject, ABC):
 
         if self.hdr_to_sdr:
             self._filter_len_check()
-            self.filter_flags.append[1] += ('zscale=t=linear,format=gbrpf32le,'
-                                            'zscale=p=bt709,tonemap=tonemap='
-                                            'hable:desat=0.0,zscale=t=bt709:'
-                                            'm=bt709:r=tv,format=yuv420p')
+            self.filter_flags[1] += ('zscale=t=linear,format=gbrpf32le,'
+                                     'zscale=p=bt709,tonemap=tonemap='
+                                     'hable:desat=0.0,zscale=t=bt709:'
+                                     'm=bt709:r=tv,format=yuv420p')
 
     def _set_stream_maps(self):
-        self.stream_maps = ['-map', f'0:v:{stream_id}']
+        self.stream_maps = ['-map', f'0:v:{self.stream_id}']
 
 
 @dataclass
