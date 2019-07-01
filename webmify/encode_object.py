@@ -1,3 +1,4 @@
+import settings
 import stream_object
 import stream_helpers
 
@@ -8,7 +9,7 @@ from typing import List, Tuple
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
-ffmpeg_bin = 'ffmpeg'
+ffmpeg_bin = settings.ffmpeg_bin
 
 
 @dataclass
@@ -149,7 +150,7 @@ class OpusNormalizedDownmixEncode(EncodeObject):
     def _work_lra(self):
         self.norm_count = 1
 
-        while float(self.cur_lra) > 18.5:
+        while float(self.cur_lra) > 18.3:
             self.old_name = self.norm_second_encode.out_file.parent / (self.norm_second_encode.out_file.stem + '_old.mkv')
             self.norm_second_encode.out_file.rename(self.old_name)
 
