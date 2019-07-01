@@ -122,8 +122,7 @@ class NormalizedSecondPassStream(AudioStream):
     norm_tar_off: str = ''
 
     def _set_filter(self):
-        self.filter_flags = ['-af', 'aresample=async=1:first_pts=0,'
-                                    'loudnorm=I=-16:LRA=16:tp=-1.5:'
+        self.filter_flags = ['-af', 'loudnorm=I=-16:LRA=16:tp=-1.5:'
                                     f'measured_I={self.norm_i}:'
                                     f'measured_LRA={self.norm_lra}:'
                                     f'measured_tp={self.norm_tp}:'
