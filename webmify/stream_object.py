@@ -1,6 +1,7 @@
 import settings
 import stream_helpers
 
+import sys
 from pathlib import Path, PurePath
 from typing import Dict, List, Tuple, Union
 from abc import ABC, abstractmethod
@@ -228,11 +229,46 @@ class VideoStream(StreamObject, ABC):
     autocrop: bool = False
     burn_subs: bool = False
     cpu_threads: str = settings.cpu_threads
+    crf: str = '19'
     denoise: bool = False
     hdr_to_sdr: bool = False
+    scale_to_1080: bool = False
+    scale_to_720: bool = False
 
     def __post_init__(self):
         super().__post_init__()
+
+    def _filter_len_check(self):
+        if len(self.filter_flags) > 1:
+            self.filter_flags[1] += ','
+
+    def _set_filter(self):
+        self.any_filter = (self.autocrop or
+                           self.burn_subs or
+                           self.denoise or
+                           self.hdr_to_sdr or
+                           self.scale_to_1080 or
+                           self.scale_to_720)
+
+        if self.scale_to_1080 and self.scale_to_720:
+            sys.exit('Mutually exclusive scaling options selected. '
+                     'Choose either 1080p or 720p.')
+
+        if self.any_filter:
+            self.filter_flags = ['-vf']
+
+        if self.scale_to_1080:
+            self.filter_flags.append('scale=1920:-2')
+
+        if self.scale_to_720:
+            self.filter_flags.append('scale=1280:-2')
+
+        if self.hdr_to_sdr:
+            self._filter_len_check()
+            self.filter_flags.append[1] += ('zscale=t=linear,format=gbrpf32le,'
+                                            'zscale=p=bt709,tonemap=tonemap='
+                                            'hable:desat=0.0,zscale=t=bt709:'
+                                            'm=bt709:r=tv,format=yuv420p')
 
     def _set_stream_maps(self):
         self.stream_maps = ['-map', f'0:v:{stream_id}']
@@ -240,4 +276,12 @@ class VideoStream(StreamObject, ABC):
 
 @dataclass
 class VP9Stream(VideoStream):
-    pass
+    def _set_encoder(self):
+        self.encoder_flags = ['-c:v', 'libvpx-vp9', '-crf', self.crf, '-b:v',
+                              '0', '-g', '240', '-deadline', 'good',
+                              '-cpu-used', '2', '-tile-columns', '2',
+                              '-row-mt', '1', '-threads', settings.cpu_threads,
+                              '-profile:v', '2', '-pix_fmt', 'yuv420p10le']
+
+    def _set_metadata(self):
+        self.metadata = ['-metadata:s:v', 'title="VP9 - Profile 2 - 10-bit"']
