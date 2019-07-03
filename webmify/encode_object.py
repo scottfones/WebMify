@@ -150,7 +150,7 @@ class OpusNormalizedDownmixEncode(EncodeObject):
     def _work_lra(self):
         self.norm_count = 1
 
-        while float(self.cur_lra) > 18.3:
+        while float(self.cur_lra) > 18:
             self.old_name = self.norm_second_encode.out_file.parent / (self.norm_second_encode.out_file.stem + '_old.mkv')
             self.norm_second_encode.out_file.rename(self.old_name)
 
@@ -161,7 +161,7 @@ class OpusNormalizedDownmixEncode(EncodeObject):
             self.cur_lra = self.norm_second_encode.norm_first_encode.out_lra
             self.norm_count += 1
 
-            if self.norm_count == 4:
+            if self.norm_count == 5:
                 break
 
     def do_encode(self):
@@ -200,10 +200,11 @@ class StereoDownmixEncode(EncodeObject):
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
 
+
 ###################################
-########                   ########
-########   Video Encodes   ########
-########                   ########
+#                                 #
+#         Video Streams           #
+#                                 #
 ###################################
 
 
