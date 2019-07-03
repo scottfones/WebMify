@@ -119,6 +119,7 @@ class NormalizeSecondPassEncode(EncodeObject):
     def do_encode(self):
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.norm_first_encode.in_file}']
         self.encode_cmd += self.norm_second_stream.filter_flags
+        self.encode_cmd += self.norm_second_stream.stream_maps
         self.encode_cmd += self.norm_second_stream.encoder_flags
         self.encode_cmd += self.norm_second_stream.metadata
         self.encode_cmd.append(self.out_file)
