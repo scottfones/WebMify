@@ -49,8 +49,8 @@ class NormalizeFirstPassEncode(EncodeObject):
                                                       stream_id=self.stream_id)
             self.in_file = self.downmix_encode.out_file
 
-        self.norm_first_stream = stream_object.NormalizedFirstPassStream(self.in_file,
-                                                                         self.stream_id)
+        self.stream = stream_object.NormalizedFirstPassStream(self.in_file,
+                                                              self.stream_id)
 
         self.do_encode()
 
@@ -79,9 +79,9 @@ class NormalizeFirstPassEncode(EncodeObject):
 
     def do_encode(self):
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
-        self.encode_cmd += self.norm_first_stream.stream_maps
-        self.encode_cmd += self.norm_first_stream.filter_flags
-        self.encode_cmd += self.norm_first_stream.metadata
+        self.encode_cmd += self.stream.stream_maps
+        self.encode_cmd += self.stream.filter_flags
+        self.encode_cmd += self.stream.metadata
         self.encode_cmd.append('-')
 
         print('\n\nRunning: Normalization First Pass - Please Be Patient')
@@ -104,13 +104,13 @@ class NormalizeSecondPassEncode(EncodeObject):
                                                           out_file=self.out_file,
                                                           stream_id=self.stream_id)
 
-        self.norm_second_stream = stream_object.NormalizedSecondPassStream(self.norm_first_encode.in_file,
-                                                                           self.stream_id,
-                                                                           norm_i=self.norm_first_encode.norm_i,
-                                                                           norm_tp=self.norm_first_encode.norm_tp,
-                                                                           norm_lra=self.norm_first_encode.norm_lra,
-                                                                           norm_thresh=self.norm_first_encode.norm_thresh,
-                                                                           norm_tar_off=self.norm_first_encode.norm_offset)
+        self.stream = stream_object.NormalizedSecondPassStream(self.norm_first_encode.in_file,
+                                                               self.stream_id,
+                                                               norm_i=self.norm_first_encode.norm_i,
+                                                               norm_tp=self.norm_first_encode.norm_tp,
+                                                               norm_lra=self.norm_first_encode.norm_lra,
+                                                               norm_thresh=self.norm_first_encode.norm_thresh,
+                                                               norm_tar_off=self.norm_first_encode.norm_offset)
 
         self.out_file = self.out_file.parent / (self.out_file.stem + '_norm.mkv')
 
@@ -118,13 +118,37 @@ class NormalizeSecondPassEncode(EncodeObject):
 
     def do_encode(self):
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.norm_first_encode.in_file}']
-        self.encode_cmd += self.norm_second_stream.filter_flags
-        self.encode_cmd += self.norm_second_stream.stream_maps
-        self.encode_cmd += self.norm_second_stream.encoder_flags
-        self.encode_cmd += self.norm_second_stream.metadata
+        self.encode_cmd += self.stream.filter_flags
+        self.encode_cmd += self.stream.stream_maps
+        self.encode_cmd += self.stream.encoder_flags
+        self.encode_cmd += self.stream.metadata
         self.encode_cmd.append(self.out_file)
 
         print('\n\nRunning: Normalization Second Pass')
+        print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
+        self.comp_proc = subprocess.run(self.encode_cmd)
+
+
+@dataclass
+class OpusEncode(EncodeObject):
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.out_file = self.out_file.parent / (self.out_file.stem + '_audio.opus')
+        self.stream = stream_object.OpusStream(in_file=self.in_file,
+                                                    stream_id=self.stream_id)
+
+        self.do_encode()
+
+    def do_encode(self):
+        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
+        self.encode_cmd += self.stream.filter_flags
+        self.encode_cmd += self.stream.stream_maps
+        self.encode_cmd += self.stream.encoder_flags
+        self.encode_cmd += self.stream.metadata
+        self.encode_cmd.append(self.out_file)
+
+        print('\n\nRunning: Opus Encode')
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
 
@@ -143,7 +167,7 @@ class OpusNormalizedDownmixEncode(EncodeObject):
         self._work_lra()
 
         self.out_file = self.out_file.parent / (self.out_file.stem + '_norm.opus')
-        self.opus_stream = stream_object.OpusNormalizedDownmixStream(in_file=self.norm_second_encode.out_file,
+        self.stream = stream_object.OpusNormalizedDownmixStream(in_file=self.norm_second_encode.out_file,
                                                                      stream_id='0')
 
         self.do_encode()
@@ -167,9 +191,9 @@ class OpusNormalizedDownmixEncode(EncodeObject):
 
     def do_encode(self):
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.norm_second_encode.out_file}']
-        self.encode_cmd += self.opus_stream.filter_flags
-        self.encode_cmd += self.opus_stream.encoder_flags
-        self.encode_cmd += self.opus_stream.metadata
+        self.encode_cmd += self.stream.filter_flags
+        self.encode_cmd += self.stream.encoder_flags
+        self.encode_cmd += self.stream.metadata
         self.encode_cmd.append(self.out_file)
 
         print('\n\nRunning: Opus Normalized Downmix Encode')
@@ -184,17 +208,17 @@ class StereoDownmixEncode(EncodeObject):
 
         self.out_file = self.out_file.parent / (self.out_file.stem + '_downmix.mkv')
 
-        self.down_stream = stream_object.StereoDownmixStream(self.in_file,
-                                                             self.stream_id)
+        self.stream = stream_object.StereoDownmixStream(self.in_file,
+                                                        self.stream_id)
 
         self.do_encode()
 
     def do_encode(self):
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
-        self.encode_cmd += self.down_stream.filter_flags
-        self.encode_cmd += self.down_stream.stream_maps
-        self.encode_cmd += self.down_stream.encoder_flags
-        self.encode_cmd += self.down_stream.metadata
+        self.encode_cmd += self.stream.filter_flags
+        self.encode_cmd += self.stream.stream_maps
+        self.encode_cmd += self.stream.encoder_flags
+        self.encode_cmd += self.stream.metadata
         self.encode_cmd.append(self.out_file)
 
         print('\n\nRunning: Stereo Downmix')
@@ -214,20 +238,21 @@ class VP9Encode(EncodeObject):
     def __post_init__(self):
         super().__post_init__()
 
-        self.out_file = self.out_file.parent / (self.out_file.stem + '_vp9.mkv')
+        self.out_file = self.out_file.parent / (self.out_file.stem + '_vp9.webm')
 
-        self.vp9_stream = stream_object.VP9Stream(self.in_file, self.stream_id)
+        self.stream = stream_object.VP9Stream(self.in_file, self.stream_id)
 
         self.do_encode()
 
     def do_encode(self):
         self.encode_cmd = [f'{ffmpeg_bin}', '-y', '-i', f'{self.in_file}']
-        if hasattr(self.vp9_stream, 'filter_flags'):
-            self.encode_cmd += self.vp9_stream.filter_flags
-        self.encode_cmd += self.vp9_stream.stream_maps
-        self.encode_cmd += self.vp9_stream.encoder_flags
-        self.encode_cmd += self.vp9_stream.metadata
-        self.encode_cmd += ['-pass', '1', '-f', 'webm', '-strict',
+        if hasattr(self.stream, 'filter_flags'):
+            self.encode_cmd += self.stream.filter_flags
+        self.encode_cmd += self.stream.stream_maps
+        self.encode_cmd += self.stream.encoder_flags
+        self.encode_cmd += self.stream.metadata
+        self.encode_cmd += ['-pass', '1', '-f', 'webm', '-passlogfile',
+                            f'{self.out_file.stem}', '-strict',
                             'experimental', '/dev/null']
 
         print('\n\nRunning: VP9 First Pass')
@@ -235,12 +260,13 @@ class VP9Encode(EncodeObject):
         self.comp_proc = subprocess.run(self.encode_cmd)
 
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
-        if hasattr(self.vp9_stream, 'filter_flags'):
-            self.encode_cmd += self.vp9_stream.filter_flags
-        self.encode_cmd += self.vp9_stream.stream_maps
-        self.encode_cmd += self.vp9_stream.encoder_flags
-        self.encode_cmd += self.vp9_stream.metadata
-        self.encode_cmd += ['-pass', '2', '-f', 'webm', '-strict',
+        if hasattr(self.stream, 'filter_flags'):
+            self.encode_cmd += self.stream.filter_flags
+        self.encode_cmd += self.stream.stream_maps
+        self.encode_cmd += self.stream.encoder_flags
+        self.encode_cmd += self.stream.metadata
+        self.encode_cmd += ['-pass', '2', '-f', 'webm', '-passlogfile',
+                            f'{self.out_file.stem}', '-strict',
                             'experimental', f'{self.out_file}']
 
         print('\n\nRunning: VP9 Second Pass')

@@ -24,7 +24,7 @@ def get_title(file: str) -> str:
     """
     file = check_strip_path(file)
 
-    title_re = re.compile('^(.+?)[(.]')
+    title_re = re.compile(r'^(.+?)[(.]')
     title_found = title_re.search(file).groups()[0]
 
     return title_found
@@ -39,7 +39,7 @@ def get_season(file: str) -> str:
     """
     file = check_strip_path(file)
 
-    season_re = re.compile('\W[s,S]([0-9]+)')
+    season_re = re.compile(r'\W[s,S]([0-9]+)')
     season_groups = season_re.search(file)
 
     if season_groups is None:
@@ -76,6 +76,16 @@ def get_episode(file: str) -> str:
     return episode_found
 
 
+def get_out_file(file: str, suffix: str) -> str:
+    """Default output filename constructor.
+    Removes file suffix and replace.
+    """
+    if isinstance(file, PurePath):
+        return file.stem + suffix
+    else:
+        return Path(file).stem + suffix
+
+
 def is_movie(file: str) -> bool:
     """Parse file name for season or episode
     information. If none is found, assume
@@ -91,3 +101,14 @@ def is_movie(file: str) -> bool:
         return True
     else:
         return False
+
+
+def is_batch_repeat(file1: str, file2: str) -> bool:
+    """Given two inputs, file1 and file2, return
+    true if the parsed titles are equivalent.
+    """
+
+    title1 = get_title(file1)
+    title2 = get_title(file2)
+
+    return title1 == title2

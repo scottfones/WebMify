@@ -52,20 +52,6 @@ def display_movie(movie_info: dict) -> NoReturn:
     print(f"Synopsis: {movie_info['overview']}")
 
 
-def display_tv_episode(show_info: dict, ep_info: dict) -> NoReturn:
-    """Display tv episode information"""
-    print(f"\nEpisode URL:\nhttps://www.themoviedb.org/tv/"
-          f"{show_info['id']}/season/{ep_info['season_number']}"
-          f"/episode/{ep_info['episode_number']}")
-    print('\nEpisode Info:')
-    print(f"Show: {show_info['name']}")
-    print(f"Season: {ep_info['season_number']}")
-    print(f"Episode: {ep_info['episode_number']}")
-    print(f"Air Date: {ep_info['air_date']}")
-    print(f"Episode Title: {ep_info['name']}")
-    print(f"Episode Overview: {ep_info['overview']}")
-
-
 def get_movie_info(title: str) -> Tuple[str, str, str]:
     search_response = find_movie(title)
 

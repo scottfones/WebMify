@@ -1,11 +1,11 @@
-#!/usr/bin/env python
-
-import re
-import sys
+#!/usr/bin/python3
 import tmdb_lookup
 import input_parser
 import encode_object
+import stream_helpers
 
+import re
+import sys
 from pathlib import Path
 from optparse import OptionParser, OptionGroup
 
@@ -102,30 +102,21 @@ def main():
 
     (options, args) = parser.parse_args()
 
-    print(f'{args}')
     work_list = [Path(file) for file in args]
 
-    repeat_title = ''
     for file in work_list:
-        print('\nX        NEW ENCODE        X\n')
+        print('\n\nX        NEW ENCODE        X\n\n')
 
         if input_parser.is_movie(file):
-            encode = encode_object.MovieObject(file,
-                                               title=options.media_title,
-                                               out_file=options.out_filename,
-                                               post_delete=options.del_orig)
+            sys.exit('Movie encodes not yet supported.')
         else:
-            encode = encode_object.TVObject(file,
-                                             title=options.media_title,
-                                             s_num=options.season_num,
-                                             ep_num=options.episode_num,
-                                             out_file=options.out_filename,
-                                             post_delete=options.del_orig)
+            video_encode = encode_object.VP9Encode(in_file=file,
+                                                   out_file=file)
+            audio_encode = encode_object.OpusEncode(in_file=file, out_file=file)
 
-        # Next Iteration Update
-        repeat_title = input_parser.get_title(file)
+            if int(stream_helpers.get_audio_ch(input_file=file, audio_id='0')) > 2:
+                down_encode = encode_object.OpusNormalizedDownmixEncode(in_file=file, out_file=file)
 
-        print(encode)
 
 if __name__ == '__main__':
     main()

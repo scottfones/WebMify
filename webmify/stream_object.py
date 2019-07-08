@@ -97,7 +97,7 @@ class AudioStream(StreamObject, ABC):
         if int(self.channel_num) < 6:
             self.stream_maps = ['-map', f'0:a:{self.stream_id}']
         else:
-            self.stream_maps = ['-map', '"[ss]"']
+            self.stream_maps = ['-map', '[ss]']
 
 
 @dataclass
@@ -145,14 +145,12 @@ class OpusStream(AudioStream):
         filter_dict = {'1': ['-af', 'channelmap=channel_layout=mono'],
                        '2': ['-af', 'channelmap=channel_layout=stereo'],
                        '4': ['-ac', '2'],
-                       '6': ['-filter_complex', f'"[a:{self.stream_id}]'
-                                                f'[a:{self.stream_id}]'
+                       '6': ['-filter_complex', f'[a:{self.stream_id}]'
                                                 'channelmap=channel_layout=5.1'
-                                                '[ss]"'],
-                       '8': ['-filter_complex', f'"[a:{self.stream_id}]'
-                                                f'[a:{self.stream_id}]'
+                                                '[ss]'],
+                       '8': ['-filter_complex', f'[a:{self.stream_id}]'
                                                 'channelmap=channel_layout=7.1'
-                                                '[ss]"']}
+                                                '[ss]']}
 
         self.filter_flags = filter_dict[self.channel_num]
 
@@ -167,19 +165,19 @@ class OpusStream(AudioStream):
 
     def _set_metadata(self):
         metadata_dict = {'1': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- Opus Mono - 96kbps"',
+                                                '- Opus Mono"',
                                '-metadata:s:a', f'language={self.stream_lang}'],
                          '2': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- Opus Stereo - 128kbps"',
+                                                '- Opus Stereo"',
                                '-metadata:s:a', f'language={self.stream_lang}'],
                          '4': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- Opus Stereo - 128kbps"',
+                                                '- Opus Stereo"',
                                '-metadata:s:a', f'language={self.stream_lang}'],
                          '6': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- Opus Surround Sound - 5.1 - 256kbps"',
+                                                '- Opus Surround Sound - 5.1"',
                                '-metadata:s:a', f'language={self.stream_lang}'],
                          '8': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- Opus Surround Sound - 7.1 - 450kbps"',
+                                                '- Opus Surround Sound - 7.1"',
                                '-metadata:s:a', f'language={self.stream_lang}']}
 
         self.metadata = metadata_dict[self.channel_num]
@@ -189,7 +187,7 @@ class OpusStream(AudioStream):
 class OpusNormalizedDownmixStream(OpusStream):
     def _set_metadata(self):
         self.metadata = ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                          '- Opus Normalized Downmix - 2.0 - 128kbps"',
+                                          '- Opus Normalized Downmix - 2.0"',
                          '-metadata:s:a', f'language={self.stream_lang}']
 
 
@@ -215,9 +213,9 @@ class StereoDownmixStream(AudioStream):
 
 
 ###################################
-########                   ########
-########   Video Streams   ########
-########                   ########
+#                                 #
+#         Video Streams           #
+#                                 #
 ###################################
 
 @dataclass
