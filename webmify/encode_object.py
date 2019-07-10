@@ -235,6 +235,31 @@ class StereoDownmixEncode(EncodeObject):
 
 
 @dataclass
+class ChromecastEncode(EncodeObject):
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.out_file = self.out_file.with_suffix('.chromecast.mkv')
+
+        self.stream = stream_object.ChromecastStream(self.in_file,
+                                                     self.stream_id)
+
+        self.do_encode()
+
+    def do_encode(self):
+        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
+        if hasattr(self.stream, 'filter_flags'):
+            self.encode_cmd += self.stream.filter_flags
+        self.encode_cmd += self.stream.stream_maps
+        self.encode_cmd += self.stream.encoder_flags
+        self.encode_cmd += self.stream.metadata
+        self.encode_cmd += [f'{self.out_file}']
+
+        print('\n\nRunning: Chromecast Video Encode')
+        print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
+        self.comp_proc = subprocess.run(self.encode_cmd)
+
+@dataclass
 class VP9Encode(EncodeObject):
     def __post_init__(self):
         super().__post_init__()
