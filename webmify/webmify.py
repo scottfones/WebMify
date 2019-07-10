@@ -109,7 +109,7 @@ def main():
 
         if input_parser.is_movie(file):
             video_encode = encode_object.ChromecastEncode(in_file=file)
-            audio_encode = encode_object.OpusNormalizedDownmixEncode(in_file=file)
+            audio_encode = encode_object.NormalizeSecondPassEncode(in_file=file)
         else:
             video_encode = encode_object.VP9Encode(in_file=file,
                                                    out_file=file)
