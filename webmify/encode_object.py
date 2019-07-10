@@ -19,15 +19,17 @@ class EncodeObject(ABC):
     """
 
     in_file: PurePath
-    out_file: PurePath = Path('out.mkv')
+    out_file: PurePath 
+    stream_id: str = '0'
     encode_cmd: List[str] = field(default_factory=list)
 
-    title: str = ''
-    stream_id: str = '0'
 
     def __post_init__(self):
         if not isinstance(self.in_file, PurePath):
             self.in_file = Path(self.in_file)
+
+        if not self.out_file:
+            self.out_file = self.in_file.with_suffix('.out.mkv')
 
         if not isinstance(self.out_file, PurePath):
             self.out_file = Path(self.out_file)
