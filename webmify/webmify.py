@@ -108,7 +108,8 @@ def main():
         print('\n\nX        NEW ENCODE        X\n\n')
 
         if input_parser.is_movie(file):
-            sys.exit('Movie encodes not yet supported.')
+            video_encode = encode_object.ChromecastEncode(in_file=file)
+            audio_encode = encode_object.OpusNormalizedDownmixEncode(in_file=file)
         else:
             video_encode = encode_object.VP9Encode(in_file=file,
                                                    out_file=file)
