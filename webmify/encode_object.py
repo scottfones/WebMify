@@ -19,10 +19,9 @@ class EncodeObject(ABC):
     """
 
     in_file: PurePath
-    out_file: PurePath 
+    out_file: PurePath = ''
     stream_id: str = '0'
     encode_cmd: List[str] = field(default_factory=list)
-
 
     def __post_init__(self):
         if not isinstance(self.in_file, PurePath):
@@ -114,7 +113,7 @@ class NormalizeSecondPassEncode(EncodeObject):
                                                                norm_thresh=self.norm_first_encode.norm_thresh,
                                                                norm_tar_off=self.norm_first_encode.norm_offset)
 
-        self.out_file = self.out_file.parent / (self.out_file.stem + '_norm.mkv')
+        self.out_file = self.out_file.with_suffix('.norm.mkv')
 
         self.do_encode()
 
@@ -136,9 +135,9 @@ class OpusEncode(EncodeObject):
     def __post_init__(self):
         super().__post_init__()
 
-        self.out_file = self.out_file.parent / (self.out_file.stem + '_audio.opus')
+        self.out_file = self.out_file.with_suffix('.audio.opus')
         self.stream = stream_object.OpusStream(in_file=self.in_file,
-                                                    stream_id=self.stream_id)
+                                               stream_id=self.stream_id)
 
         self.do_encode()
 
@@ -168,9 +167,9 @@ class OpusNormalizedDownmixEncode(EncodeObject):
 
         self._work_lra()
 
-        self.out_file = self.out_file.parent / (self.out_file.stem + '_norm.opus')
+        self.out_file = self.out_file.with_suffix('.norm.opus')
         self.stream = stream_object.OpusNormalizedDownmixStream(in_file=self.norm_second_encode.out_file,
-                                                                     stream_id='0')
+                                                                stream_id='0')
 
         self.do_encode()
 
@@ -178,7 +177,7 @@ class OpusNormalizedDownmixEncode(EncodeObject):
         self.norm_count = 1
 
         while float(self.cur_lra) > 18:
-            self.old_name = self.norm_second_encode.out_file.parent / (self.norm_second_encode.out_file.stem + '_old.mkv')
+            self.old_name = self.norm_second_encode.out_file.with_suffix('.old.mkv')
             self.norm_second_encode.out_file.rename(self.old_name)
 
             self.norm_second_encode = NormalizeSecondPassEncode(in_file=self.old_name,
@@ -208,7 +207,7 @@ class StereoDownmixEncode(EncodeObject):
     def __post_init__(self):
         super().__post_init__()
 
-        self.out_file = self.out_file.parent / (self.out_file.stem + '_downmix.mkv')
+        self.out_file = self.out_file.with_suffix('.downmix.mkv')
 
         self.stream = stream_object.StereoDownmixStream(self.in_file,
                                                         self.stream_id)
@@ -240,7 +239,7 @@ class VP9Encode(EncodeObject):
     def __post_init__(self):
         super().__post_init__()
 
-        self.out_file = self.out_file.parent / (self.out_file.stem + '_vp9.webm')
+        self.out_file = self.out_file.with_suffix('.vp9.webm')
 
         self.stream = stream_object.VP9Stream(self.in_file, self.stream_id)
 
