@@ -274,6 +274,23 @@ class VideoStream(StreamObject, ABC):
 
 
 @dataclass
+class ChromecastStream(VideoStream):
+    def __post_init__(self):
+        self.hdr_to_sdr = True
+        self.scale_to_1080 = True
+
+        super().__post_init__()
+
+    def _set_encoder(self):
+        self.encoder_flags = ['-c:v', 'libx264', '-preset', 'veryslow', '-tune',
+                              'film', '-crf', self.crf, '-profile:v', 'high',
+                              '-level', '4.1', '-maxrate', '5M', '-bufsize', '2M']
+
+    def _set_metadata(self):
+        self.metadata = ['-metadata:s:v', 'title="h264 (avc1) 4.1 High"']
+
+
+@dataclass
 class VP9Stream(VideoStream):
     def _set_encoder(self):
         self.encoder_flags = ['-c:v', 'libvpx-vp9', '-crf', self.crf, '-b:v',
