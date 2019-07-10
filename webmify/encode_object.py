@@ -28,7 +28,7 @@ class EncodeObject(ABC):
             self.in_file = Path(self.in_file)
 
         if not self.out_file:
-            self.out_file = self.in_file.with_suffix('.out.mkv')
+            self.out_file = Path('.') / (self.in_file.name + '.out.mkv')
 
         if not isinstance(self.out_file, PurePath):
             self.out_file = Path(self.out_file)
