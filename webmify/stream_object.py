@@ -241,7 +241,6 @@ class VideoStream(StreamObject, ABC):
             self.filter_flags[1] += ','
 
     def _set_filter(self):
-        print('setting filter')
         self.any_filter = (self.autocrop or
                            self.burn_subs or
                            self.denoise or

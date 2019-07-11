@@ -118,8 +118,6 @@ class NormalizeSecondPassEncode(EncodeObject):
         self.do_encode()
 
     def do_encode(self):
-        self.cur_lra = self.norm_first_encode.out_lra
-
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.norm_first_encode.in_file}']
         self.encode_cmd += self.stream.filter_flags
         self.encode_cmd += self.stream.stream_maps
@@ -131,6 +129,7 @@ class NormalizeSecondPassEncode(EncodeObject):
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
 
+        self.cur_lra = self.norm_first_encode.out_lra
         if float(self.cur_lra) > 18.2:
             self.old_name = self.out_file.with_suffix('.old.mkv')
             self.out_file.rename(self.old_name)
