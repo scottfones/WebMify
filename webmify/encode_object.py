@@ -135,8 +135,11 @@ class NormalizeSecondPassEncode(EncodeObject):
             self.out_file.rename(self.old_name)
 
             NormalizeSecondPassEncode(in_file=self.old_name,
-                                      out_file=self.out_file,
+                                      out_file=self.out_file.parent / self.out_file.stem,
                                       stream_id=self.stream_id)
+            
+            if self.old_name.exists():
+                self.old_name.unlink()
 
 
 @dataclass
