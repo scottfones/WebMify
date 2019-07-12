@@ -224,7 +224,7 @@ class WebVTTStream(StreamObject):
         super().__post_init__()
 
     def _set_filter(self):
-        self.filter_flags['']
+        self.filter_flags = None
 
     def _set_encoder(self):
         self.encoder_flags = ['-c:v', 'webvtt']
