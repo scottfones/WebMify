@@ -44,7 +44,7 @@ class TVWrapper(WrapperObject, ABC):
     def __post_init__(self):
         super().__post_init__()
 
-        self.out_file = self.out_file.with_suffix('.webm')
+        self.out_file = self.out_file.with_suffix('.new.mkv')
         self.video_stream = encode_object.VP9Encode(in_file=self.in_file, out_file=self.out_file)
         self.audio_stream = encode_object.OpusEncode(in_file=self.in_file, out_file=self.out_file)
 
