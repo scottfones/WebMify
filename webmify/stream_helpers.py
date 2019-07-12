@@ -68,7 +68,7 @@ def get_vp9_tile_columns(input_file: PurePath, stream_id: str) -> str:
                             '-show_entries', 'stream=height',
                             '-of', 'default=nw=1:nk=1']
 
-    height = subprocess.check_output(audio_lang_probe_cmd, stdin=None,
+    height = subprocess.check_output(probe_cmd, stdin=None,
                                      stderr=None, shell=False,
                                      universal_newlines=True).strip()
     height = int(height)
