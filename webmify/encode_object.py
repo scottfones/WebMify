@@ -297,6 +297,8 @@ class VP9Encode(EncodeObject):
         self.do_encode()
 
     def do_encode(self):
+        self.logfile = self.out_file.parent / self.out_file.stem
+
         self.encode_cmd = [f'{ffmpeg_bin}', '-y', '-i', f'{self.in_file}']
         if hasattr(self.stream, 'filter_flags'):
             self.encode_cmd += self.stream.filter_flags
@@ -304,7 +306,7 @@ class VP9Encode(EncodeObject):
         self.encode_cmd += self.stream.encoder_flags
         self.encode_cmd += self.stream.metadata
         self.encode_cmd += ['-pass', '1', '-f', 'webm', '-passlogfile',
-                            f'{self.out_file.parent / self.out_file.stem}', '-strict',
+                            self.logfile, '-strict',
                             'experimental', '/dev/null']
 
         print('\n\nRunning: VP9 First Pass')
@@ -318,9 +320,12 @@ class VP9Encode(EncodeObject):
         self.encode_cmd += self.stream.encoder_flags
         self.encode_cmd += self.stream.metadata
         self.encode_cmd += ['-pass', '2', '-f', 'webm', '-passlogfile',
-                            f'{self.out_file.parent / self.out_file.stem}', '-strict',
+                            self.logfile, '-strict',
                             'experimental', f'{self.out_file}']
 
         print('\n\nRunning: VP9 Second Pass')
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
+
+        self.logfile = self.logfile + f'-{self.stream_id}.log'
+        self.logfile.unlink()
