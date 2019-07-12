@@ -192,6 +192,9 @@ class OpusNormalizedDownmixEncode(EncodeObject):
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
 
+        if self.norm_second_encode.out_file.exists():
+            self.norm_second_encode.out_file.unlink()
+
 
 @dataclass
 class StereoDownmixEncode(EncodeObject):
@@ -214,6 +217,37 @@ class StereoDownmixEncode(EncodeObject):
         self.encode_cmd.append(self.out_file)
 
         print('\n\nRunning: Stereo Downmix')
+        print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
+        self.comp_proc = subprocess.run(self.encode_cmd)
+
+
+###################################
+#                                 #
+#        Subtitle Streams         #
+#                                 #
+###################################
+
+
+@dataclass
+class WebVTTEncode(EncodeObject):
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.out_file = self.out_file.with_suffix('.vtt')
+        self.stream = stream_object.WebVTTStream(in_file=self.in_file,
+                                                 stream_id=self.stream_id)
+
+        self.do_encode()
+
+    def do_encode(self):
+        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
+        self.encode_cmd += self.stream.filter_flags
+        self.encode_cmd += self.stream.stream_maps
+        self.encode_cmd += self.stream.encoder_flags
+        self.encode_cmd += self.stream.metadata
+        self.encode_cmd.append(self.out_file)
+
+        print('\n\nRunning: Subtitle WebVTT Encode')
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
 
@@ -270,7 +304,7 @@ class VP9Encode(EncodeObject):
         self.encode_cmd += self.stream.encoder_flags
         self.encode_cmd += self.stream.metadata
         self.encode_cmd += ['-pass', '1', '-f', 'webm', '-passlogfile',
-                            f'{self.out_file.stem}', '-strict',
+                            f'{self.out_file.parent / self.out_file.stem}', '-strict',
                             'experimental', '/dev/null']
 
         print('\n\nRunning: VP9 First Pass')
@@ -284,7 +318,7 @@ class VP9Encode(EncodeObject):
         self.encode_cmd += self.stream.encoder_flags
         self.encode_cmd += self.stream.metadata
         self.encode_cmd += ['-pass', '2', '-f', 'webm', '-passlogfile',
-                            f'{self.out_file.stem}', '-strict',
+                            f'{self.out_file.parent / self.out_file.stem}', '-strict',
                             'experimental', f'{self.out_file}']
 
         print('\n\nRunning: VP9 Second Pass')
