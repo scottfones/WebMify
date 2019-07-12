@@ -316,9 +316,12 @@ class ChromecastStream(VideoStream):
 @dataclass
 class VP9Stream(VideoStream):
     def _set_encoder(self):
+        self.tile_columns = stream_helpers.get_vp9_tile_columns(input_file=self.in_file,
+                                                                stream_id=self.stream_id)
+
         self.encoder_flags = ['-c:v', 'libvpx-vp9', '-crf', self.crf, '-b:v',
                               '0', '-g', '240', '-deadline', 'good',
-                              '-cpu-used', '2', '-tile-columns', '2',
+                              '-cpu-used', '2', '-tile-columns', self.tile_columns,
                               '-row-mt', '1', '-threads', settings.cpu_threads,
                               '-profile:v', '2', '-pix_fmt', 'yuv420p10le']
 
