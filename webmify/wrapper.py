@@ -114,5 +114,5 @@ class TVStereoSubsWrapper(TVWrapper):
         self.video_stream.out_file.unlink()
         print(f'Deleting audio file: {self.audio_stream.out_file}')
         self.audio_stream.out_file.unlink()
-        print(f'Deleting subtitle file: {self.downmix_stream.out_file}')
+        print(f'Deleting subtitle file: {self.sub_stream.out_file}')
         self.sub_stream.out_file.unlink()
