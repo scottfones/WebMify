@@ -63,11 +63,11 @@ class TVMultiChannelWrapper(TVWrapper):
         self.wrap_cmd = ['mkvmerge', '-o', self.out_file,
                          '--title', self.file_title,
                          '--track-order', '0:0,1:0,2:0',
-                         '--track-name', f'0:{self.video_stream.stream.metadata[1][7:-2]}',
+                         '--track-name', f'0:{self.video_stream.stream.metadata[1][7:-1]}',
                          self.video_stream.out_file,
-                         '--track-name', f'0:{self.audio_stream.stream.metadata[1][7:-2]}',
+                         '--track-name', f'0:{self.audio_stream.stream.metadata[1][7:-1]}',
                          '--no-chapters', self.audio_stream.out_file,
-                         '--track-name', f'0:{self.downmix_stream.stream.metadata[1][7:-2]}',
+                         '--track-name', f'0:{self.downmix_stream.stream.metadata[1][7:-1]}',
                          '--no-chapters', self.downmix_stream.out_file]
 
         print('\n\nRunning: TV - Surround Audio Wrapper')
@@ -98,11 +98,11 @@ class TVStereoSubsWrapper(TVWrapper):
         self.wrap_cmd = ['mkvmerge', '-o', self.out_file,
                          '--title', self.file_title,
                          '--track-order', '0:0,1:0,2:0',
-                         '--track-name', f'0:{self.video_stream.stream.metadata[1][7:-2]}',
+                         '--track-name', f'0:{self.video_stream.stream.metadata[1][7:-1]}',
                          self.video_stream.out_file,
-                         '--track-name', f'0:{self.audio_stream.stream.metadata[1][7:-2]}',
+                         '--track-name', f'0:{self.audio_stream.stream.metadata[1][7:-1]}',
                          '--no-chapters', self.audio_stream.out_file,
-                         '--track-name', f'0:{self.sub_stream.stream.metadata[1][7:-2]}',
+                         '--track-name', f'0:{self.sub_stream.stream.metadata[1][7:-1]}',
                          '--no-chapters', self.sub_stream.out_file]
 
         print('\n\nRunning: TV - Stereo - Subtitles Wrapper')
