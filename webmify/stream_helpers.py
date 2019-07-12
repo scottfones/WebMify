@@ -1,9 +1,9 @@
 import subprocess
-from pathlib import Path
+from pathlib import Path, PurePath
 from collections import Counter
 
 
-def get_audio_ch(input_file: str, audio_id: str) -> str:
+def get_audio_ch(input_file: PurePath, audio_id: str) -> str:
     """Use ffprobe to query the number of
     audio channels in the specified stream.
 
@@ -19,13 +19,13 @@ def get_audio_ch(input_file: str, audio_id: str) -> str:
                                    shell=False, universal_newlines=True).strip()
 
 
-def get_audio_lang(input_file: str, audio_id: str) -> str:
+def get_audio_lang(input_file: PurePath, audio_id: str) -> str:
     """Use ffprobe to query the language of
     the specified audio stream.
 
     Parameters:
-    input_file - filename, string or Path()
-    audi_id - relative audio stream id [0...]
+    input_file - filename
+    audio_id - relative audio stream id [0...]
     """
     audio_lang_probe_cmd = ['ffprobe', f'{input_file}', '-loglevel',
                             'error', '-select_streams', f'a:{audio_id}',
@@ -35,3 +35,18 @@ def get_audio_lang(input_file: str, audio_id: str) -> str:
     return subprocess.check_output(audio_lang_probe_cmd, stdin=None,
                                    stderr=None, shell=False,
                                    universal_newlines=True).strip()
+
+
+def get_sub_stream(input_file: PurePath) -> str:
+    """Use ffprobe to query for subtitle stream
+    ids.
+
+    Parameters:
+    input_file - filename
+    """
+    probe_cmd = ['ffprobe', f'{input_file}', '-loglevel',
+                 'error', '-select_streams', 's:m:language=eng',
+                 '-show_entries', 'stream=index', '-of', 'csv=p=0']
+
+    return subprocess.check_output(probe_cmd, stdin=None, stderr=None,
+                                   shell=False, universal_newlines=True).strip()
