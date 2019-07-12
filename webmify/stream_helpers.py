@@ -50,3 +50,36 @@ def get_sub_stream(input_file: PurePath) -> str:
 
     return subprocess.check_output(probe_cmd, stdin=None, stderr=None,
                                    shell=False, universal_newlines=True).strip()
+
+def get_vp9_tile_columns(input_file: PurePath, stream_id: str) -> str:
+    """Use ffprobe to query the resolution of
+    the specified video stream and return the
+    recommended number of tile columns.
+
+    Recommendations from:
+    https://developers.google.com/media/vp9/settings/vod/
+
+    Parameters:
+    input_file - filename
+    stream_id - relative video stream id [0...]
+    """
+    probe_cmd = ['ffprobe', f'{input_file}', '-loglevel',
+                            'error', '-select_streams', f'v:{stream_id}',
+                            '-show_entries', 'stream=height',
+                            '-of', 'default=nw=1:nk=1']
+
+    height = subprocess.check_output(audio_lang_probe_cmd, stdin=None,
+                                     stderr=None, shell=False,
+                                     universal_newlines=True).strip()
+    height = int(height)
+
+    if height <= 240:
+        return '0'
+    elif height <= 480:
+        return '1'
+    elif height <= 1080:
+        return '2'
+    elif height <= 1440:
+        return '3'
+    else:
+        return '4'
