@@ -137,7 +137,7 @@ class NormalizeSecondPassEncode(EncodeObject):
             NormalizeSecondPassEncode(in_file=self.old_name,
                                       out_file=self.out_file.parent / self.out_file.stem,
                                       stream_id=self.stream_id)
-            
+
             if self.old_name.exists():
                 self.old_name.unlink()
 
@@ -328,5 +328,5 @@ class VP9Encode(EncodeObject):
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
 
-        self.logfile = self.logfile + f'-{self.stream_id}.log'
+        self.logfile = self.logfile.parent / (self.logfile.name + f'-{self.stream_id}.log')
         self.logfile.unlink()
