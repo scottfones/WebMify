@@ -214,6 +214,30 @@ class StereoDownmixStream(AudioStream):
 
 ###################################
 #                                 #
+#        Subtitle Streams         #
+#                                 #
+###################################
+
+@dataclass
+class WebVTTStream(StreamObject):
+    def __post_init__(self):
+        super().__post_init__()
+
+    def _set_filter(self):
+        self.filter_flags['']
+
+    def _set_encoder(self):
+        self.encoder_flags = ['-c:v', 'webvtt']
+
+    def _set_metadata(self):
+        self.metadata = ['-metadata:s:s', 'title="English Subtitles"']
+
+    def _set_stream_maps(self):
+        self.stream_maps = ['-map', f'0:s:{self.stream_id}']
+
+
+###################################
+#                                 #
 #         Video Streams           #
 #                                 #
 ###################################
