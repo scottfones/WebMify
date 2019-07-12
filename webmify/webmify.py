@@ -126,7 +126,10 @@ def main():
 
             if int(stream_helpers.get_audio_ch(input_file=file, audio_id='0')) > 2:
                 if stream_helpers.get_sub_stream(file):
-                    pass
+                    wrapper.TVMultiChannelSubtitleWrapper(in_file=file,
+                                                          out_file=options.out_file,
+                                                          file_title=file_title,
+                                                          ep_info=file_overview)
                 else:
                     wrapper.TVMultiChannelWrapper(in_file=file,
                                                   out_file=options.out_file,

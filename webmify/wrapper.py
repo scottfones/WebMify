@@ -60,17 +60,17 @@ class TVMultiChannelWrapper(TVWrapper):
         self.wrap()
 
     def wrap(self):
-        self.wrap_cmd = ['mkvmerge', '-o', self.out_file,
-                         '--title', self.file_title,
-                         '--track-order', '0:0,1:0,2:0',
-                         '--track-name', f'0:{self.video_stream.stream.metadata[1][7:-1]}',
-                         self.video_stream.out_file,
-                         '--track-name', f'0:{self.audio_stream.stream.metadata[1][7:-1]}',
-                         '--no-chapters', self.audio_stream.out_file,
-                         '--track-name', f'0:{self.downmix_stream.stream.metadata[1][7:-1]}',
-                         '--no-chapters', self.downmix_stream.out_file]
+        self.wrap_cmd = [settings.ffmpeg_bin,
+                         '-i', self.video_stream.out_file,
+                         '-i', self.audio_stream.out_file,
+                         '-i', self.downmix_stream.out_file,
+                         '-map', '0:0', '-map', '1:0', '-map', '2:0'
+                         '-c:v', 'copy', '-c:a', 'copy',
+                         '-metadata', f'title={self.file_title}',
+                         '-metadata', f'summary={self.ep_info}',
+                         self.out_file]
 
-        print('\n\nRunning: TV - Surround Audio Wrapper')
+        print('\n\nRunning: TV - Surround Wrapper')
         print(f"Command: {' '.join(str(element) for element in self.wrap_cmd)}\n")
         self.comp_proc = subprocess.run(self.wrap_cmd)
 
@@ -81,6 +81,48 @@ class TVMultiChannelWrapper(TVWrapper):
         self.audio_stream.out_file.unlink()
         print(f'Deleting downmix file: {self.downmix_stream.out_file}')
         self.downmix_stream.out_file.unlink()
+
+@dataclass
+class TVMultiChannelSubtitleWrapper(TVWrapper):
+    downmix_stream: encode_object.OpusNormalizedDownmixEncode = None
+    sub_stream: encode_object.WebVTTEncode = None
+
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.downmix_stream = encode_object.OpusNormalizedDownmixEncode(in_file=self.in_file, 
+                                                                        out_file=self.out_file)
+        self.sub_stream = encode_object.WebVTTEncode(in_file=self.in_file, 
+                                                     out_file=self.out_file)
+
+        self.wrap()
+
+    def wrap(self):
+        self.wrap_cmd = [settings.ffmpeg_bin,
+                         '-i', self.video_stream.out_file,
+                         '-i', self.audio_stream.out_file,
+                         '-i', self.downmix_stream.out_file,
+                         '-i', self.sub_stream.out_file,
+                         '-map', '0:0', '-map', '1:0',
+                         '-map', '2:0', '-map', '3:0',
+                         '-c:v', 'copy', '-c:a', 'copy', '-c:s', 'copy'
+                         '-metadata', f'title={self.file_title}',
+                         '-metadata', f'summary={self.ep_info}',
+                         self.out_file]
+
+        print('\n\nRunning: TV - Surround - Subtitles Wrapper')
+        print(f"Command: {' '.join(str(element) for element in self.wrap_cmd)}\n")
+        self.comp_proc = subprocess.run(self.wrap_cmd)
+
+        print('\n\nClean-up:')
+        print(f'Deleting video file: {self.video_stream.out_file}')
+        self.video_stream.out_file.unlink()
+        print(f'Deleting surround file: {self.audio_stream.out_file}')
+        self.audio_stream.out_file.unlink()
+        print(f'Deleting downmix file: {self.downmix_stream.out_file}')
+        self.downmix_stream.out_file.unlink()
+        print(f'Deleting subtitle file: {self.sub_stream.out_file}')
+        self.sub_stream.out_file.unlink()
 
 
 @dataclass
