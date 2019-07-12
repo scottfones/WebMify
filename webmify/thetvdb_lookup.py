@@ -21,7 +21,7 @@ def get_title(title: str) -> str:
     return show['seriesName']
 
 
-def get_file_title(title: str, s_num: str, ep_num: str) -> str:
+def get_file_metadata(title: str, s_num: str, ep_num: str) -> str:
     tvdb = tvdb_api.Tvdb(apikey=api_keys.thetvdb_key)
 
     try:
@@ -31,4 +31,6 @@ def get_file_title(title: str, s_num: str, ep_num: str) -> str:
     except tvdb_episodenotfound:
         sys.exit("TV Episode '{ep_num}' not found. Try modifying the season with the --episode flag.")
 
-    return f"{title} - S{s_num}E{ep_num} - {episode['episodeName']}"
+    return (f"{title} - S{s_num}E{ep_num} - {episode['episodeName']}",
+            episode['overview'])
+
