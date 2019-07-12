@@ -6,7 +6,7 @@ from typing import List, NoReturn, Tuple
 from tvdb_api import tvdb_shownotfound, tvdb_seasonnotfound, tvdb_episodenotfound
 
 
-def get_tv_title(title: str) -> str:
+def get_title(title: str) -> str:
     tvdb = tvdb_api.Tvdb(apikey=api_keys.thetvdb_key, interactive=True)
 
     try:
@@ -21,7 +21,7 @@ def get_tv_title(title: str) -> str:
     return show['seriesName']
 
 
-def get_tv_info(title: str, s_num: str, ep_num: str) -> Tuple[str, str, str, str]:
+def get_file_title(title: str, s_num: str, ep_num: str) -> str:
     tvdb = tvdb_api.Tvdb(apikey=api_keys.thetvdb_key)
 
     try:
@@ -31,4 +31,4 @@ def get_tv_info(title: str, s_num: str, ep_num: str) -> Tuple[str, str, str, str
     except tvdb_episodenotfound:
         sys.exit("TV Episode '{ep_num}' not found. Try modifying the season with the --episode flag.")
 
-    return (episode['episodeName'], episode['overview'].strip(), episode['firstAired'])
+    return f"{title} - S{s_num}E{ep_num} - {episode['episodeName']}"
