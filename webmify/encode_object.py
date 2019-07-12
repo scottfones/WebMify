@@ -241,8 +241,6 @@ class WebVTTEncode(EncodeObject):
 
     def do_encode(self):
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
-        if hasattr(self.stream, 'filter_flags'):
-            self.encode_cmd += self.stream.filter_flags
         self.encode_cmd += self.stream.stream_maps
         self.encode_cmd += self.stream.encoder_flags
         self.encode_cmd += self.stream.metadata
