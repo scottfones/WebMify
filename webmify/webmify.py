@@ -127,11 +127,13 @@ def main():
                     pass
                 else:
                     wrapper.TVMultiChannelWrapper(in_file=file,
-                                                  out_file=options.out_file)
+                                                  out_file=options.out_file,
+                                                  file_title=file_title)
             else:
                 if stream_helpers.get_sub_stream(file):
                     wrapper.TVStereoSubsWrapper(in_file=file,
-                                                out_file=options.out_file)
+                                                out_file=options.out_file,
+                                                file_title=file_title)
                 else:
                     pass
 
