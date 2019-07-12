@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 import tmdb_lookup
 import input_parser
-import encode_object
 import stream_helpers
+import thetvdb_lookup
+import wrapper
 
 import re
 import sys
@@ -50,7 +51,7 @@ def main():
     parser.add_option_group(ffmpeg_opts)
 
     tmdb_opts = OptionGroup(parser,
-                            'The Movie Database Options',
+                            'Metadata Options',
                             'These options modify TMDb search and metadata.')
 
     tmdb_opts.add_option('--episode',
@@ -80,20 +81,10 @@ def main():
                       default=False,
                       help='prefer dvd episode order, default = false')
 
-    parser.add_option('-f', '--filename', '--file',
-                      action='store', type='string', dest='out_filename',
-                      default='',
-                      help='output base filename, default = file base name')
-
-    parser.add_option('-m', '--match',
-                      action='store', type='string', dest='file_pattern',
-                      default='*.mkv',
-                      help='pattern to match, default = *.mkv')
-
     parser.add_option('-o', '--output', '--out',
-                      action='store', type='string', dest='out_path',
-                      default='./',
-                      help='path to the output folder, default = ./')
+                      action='store', type='string', dest='out_file',
+                      default='',
+                      help='output filename')
 
     parser.add_option('--test',
                       action='store_true', dest='test_run_bool',
@@ -107,16 +98,36 @@ def main():
     for file in work_list:
         print('\n\nX        NEW ENCODE        X\n\n')
 
+        if not options.media_title:
+            title = input_parser.get_title(file)
+        else:
+            title = options.media_title
+
         if input_parser.is_movie(file):
             video_encode = encode_object.ChromecastEncode(in_file=file)
             audio_encode = encode_object.NormalizeSecondPassEncode(in_file=file)
         else:
-            video_encode = encode_object.VP9Encode(in_file=file,
-                                                   out_file=file)
-            audio_encode = encode_object.OpusEncode(in_file=file, out_file=file)
+            if not options.season_num:
+                tv_season = input_parser.get_season(file)
+            else:
+                tv_season = options.season_num
+
+            if not options.episode_num:
+                tv_episode = input_parser.get_episode(file)
+            else:
+                tv_episode = options.episode_num
+
+            file_title = thetvdb_lookup.get_title(title)
+            file_title, file_overview = thetvdb_lookup.get_file_metadata(file_title,
+                                                                         tv_season,
+                                                                         tv_episode)
 
             if int(stream_helpers.get_audio_ch(input_file=file, audio_id='0')) > 2:
-                down_encode = encode_object.OpusNormalizedDownmixEncode(in_file=file, out_file=file)
+                if stream_helpers.get_sub_stream(file):
+                    pass
+                else:
+                    wrapper.TVMultiChannelWrapper(in_file=file,
+                                                  out_file=options.out_file)
 
 
 if __name__ == '__main__':
