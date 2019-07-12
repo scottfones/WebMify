@@ -233,7 +233,7 @@ class WebVTTEncode(EncodeObject):
     def __post_init__(self):
         super().__post_init__()
 
-        self.out_file = self.out_file.with_suffix('.vtt')
+        self.out_file = self.out_file.with_suffix('.mkv')
         self.stream = stream_object.WebVTTStream(in_file=self.in_file,
                                                  stream_id=self.stream_id)
 
