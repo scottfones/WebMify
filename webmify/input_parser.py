@@ -107,6 +107,9 @@ def is_batch_repeat(file1: str, file2: str) -> bool:
     """Given two inputs, file1 and file2, return
     true if the parsed titles are equivalent.
     """
+    
+    if not file1 or not file2:
+        return False
 
     title1 = get_title(file1)
     title2 = get_title(file2)
