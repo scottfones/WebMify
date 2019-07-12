@@ -84,6 +84,34 @@ class TVMultiChannelWrapper(TVWrapper):
 
 
 @dataclass
+class TVStereoWrapper(TVWrapper):
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.wrap()
+
+    def wrap(self):
+        self.wrap_cmd = [settings.ffmpeg_bin,
+                         '-i', self.video_stream.out_file,
+                         '-i', self.audio_stream.out_file,
+                         '-map', '0:0', '-map', '1:0',
+                         '-c:v', 'copy', '-c:a', 'copy',
+                         '-metadata', f'title={self.file_title}',
+                         '-metadata', f'summary={self.ep_info}',
+                         self.out_file]
+
+        print('\n\nRunning: TV - Stereo Wrapper')
+        print(f"Command: {' '.join(str(element) for element in self.wrap_cmd)}\n")
+        self.comp_proc = subprocess.run(self.wrap_cmd)
+
+        print('\n\nClean-up:')
+        print(f'Deleting video file: {self.video_stream.out_file}')
+        self.video_stream.out_file.unlink()
+        print(f'Deleting audio file: {self.audio_stream.out_file}')
+        self.audio_stream.out_file.unlink()
+
+
+@dataclass
 class TVStereoSubsWrapper(TVWrapper):
     sub_stream: encode_object.WebVTTEncode = None
 
@@ -95,17 +123,6 @@ class TVStereoSubsWrapper(TVWrapper):
         self.wrap()
 
     def wrap(self):
-        """
-        self.wrap_cmd = ['mkvmerge', '-o', self.out_file,
-                         '--title', self.file_title,
-                         '--track-order', '0:0,1:0,2:0',
-                         '--track-name', f'0:{self.video_stream.stream.metadata[1][7:-1]}',
-                         self.video_stream.out_file,
-                         '--track-name', f'0:{self.audio_stream.stream.metadata[1][7:-1]}',
-                         '--no-chapters', self.audio_stream.out_file,
-                         '--track-name', f'0:{self.sub_stream.stream.metadata[1][7:-1]}',
-                         '--no-chapters', self.sub_stream.out_file]
-        """
         self.wrap_cmd = [settings.ffmpeg_bin,
                          '-i', self.video_stream.out_file,
                          '-i', self.audio_stream.out_file,

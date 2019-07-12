@@ -118,9 +118,8 @@ def main():
             else:
                 tv_episode = options.episode_num
 
-            if not input_parser.is_batch_repeat(prev_file, file):
-                file_title = thetvdb_lookup.get_title(title)
-
+            # if not input_parser.is_batch_repeat(prev_file, file):
+            file_title = thetvdb_lookup.get_title(title)
             file_title, file_overview = thetvdb_lookup.get_file_metadata(file_title,
                                                                          tv_season,
                                                                          tv_episode)
@@ -131,15 +130,20 @@ def main():
                 else:
                     wrapper.TVMultiChannelWrapper(in_file=file,
                                                   out_file=options.out_file,
-                                                  file_title=file_title)
+                                                  file_title=file_title,
+                                                  ep_info=file_overview)
             else:
                 if stream_helpers.get_sub_stream(file):
                     wrapper.TVStereoSubsWrapper(in_file=file,
                                                 out_file=options.out_file,
-                                                file_title=file_title)
+                                                file_title=file_title,
+                                                ep_info=file_overview)
                 else:
-                    pass
-        
+                    wrapper.TVStereoWrapper(in_file=file,
+                                            out_file=options.out_file,
+                                            file_title=file_title,
+                                            ep_info=file_overview)
+
         prev_file = file
 
 
