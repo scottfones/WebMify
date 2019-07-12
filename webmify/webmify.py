@@ -95,6 +95,7 @@ def main():
 
     work_list = [Path(file) for file in args]
 
+    prev_file = None
     for file in work_list:
         print('\n\nX        NEW ENCODE        X\n\n')
 
@@ -117,7 +118,9 @@ def main():
             else:
                 tv_episode = options.episode_num
 
-            file_title = thetvdb_lookup.get_title(title)
+            if not input_parser.is_batch_repeat(prev_file, file):
+                file_title = thetvdb_lookup.get_title(title)
+
             file_title, file_overview = thetvdb_lookup.get_file_metadata(file_title,
                                                                          tv_season,
                                                                          tv_episode)
@@ -136,6 +139,8 @@ def main():
                                                 file_title=file_title)
                 else:
                     pass
+        
+        prev_file = file
 
 
 if __name__ == '__main__':
