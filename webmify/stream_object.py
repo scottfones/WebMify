@@ -227,7 +227,7 @@ class WebVTTStream(StreamObject):
         self.filter_flags = None
 
     def _set_encoder(self):
-        self.encoder_flags = ['-c:v', 'webvtt']
+        self.encoder_flags = ['-c:s', 'webvtt']
 
     def _set_metadata(self):
         self.metadata = ['-metadata:s:s', 'title="English Subtitles"']
