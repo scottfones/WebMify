@@ -19,6 +19,8 @@ class WrapperObject(ABC):
     file_title: str
     wrap_cmd: List[str] = field(default_factory=list)
 
+    denoise: bool = False
+
     def __post_init__(self):
         if not isinstance(self.in_file, PurePath):
             self.in_file = Path(self.in_file)
@@ -45,8 +47,10 @@ class TVWrapper(WrapperObject, ABC):
         super().__post_init__()
 
         self.out_file = self.in_file.with_suffix('.webm')
-        self.video_stream = encode_object.VP9Encode(in_file=self.in_file, out_file=self.out_file)
-        self.audio_stream = encode_object.OpusEncode(in_file=self.in_file, out_file=self.out_file)
+        self.video_stream = encode_object.VP9Encode(in_file=self.in_file,
+                                                    out_file=self.out_file)
+        self.audio_stream = encode_object.OpusEncode(in_file=self.in_file,
+                                                     out_file=self.out_file)
 
 @dataclass
 class TVMultiChannelWrapper(TVWrapper):

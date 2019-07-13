@@ -99,10 +99,11 @@ def main():
     for file in work_list:
         print('\n\nX        NEW ENCODE        X\n\n')
 
-        if not options.media_title:
-            title = input_parser.get_title(file)
-        else:
-            title = options.media_title
+        if not input_parser.is_batch_repeat(prev_file, file):
+            if not options.media_title:
+                title = input_parser.get_title(file)
+            else:
+                title = options.media_title
 
         if input_parser.is_movie(file):
             video_encode = encode_object.ChromecastEncode(in_file=file)
@@ -118,9 +119,9 @@ def main():
             else:
                 tv_episode = options.episode_num
 
-            # if not input_parser.is_batch_repeat(prev_file, file):
-            file_title = thetvdb_lookup.get_title(title)
-            file_title, file_overview = thetvdb_lookup.get_file_metadata(file_title,
+            if not input_parser.is_batch_repeat(prev_file, file):
+                title = thetvdb_lookup.get_title(title)
+            file_title, file_overview = thetvdb_lookup.get_file_metadata(title,
                                                                          tv_season,
                                                                          tv_episode)
 
@@ -140,7 +141,8 @@ def main():
                     wrapper.TVStereoSubsWrapper(in_file=file,
                                                 out_file=options.out_file,
                                                 file_title=file_title,
-                                                ep_info=file_overview)
+                                                ep_info=file_overview,
+                                                denoise=options.denoise)
                 else:
                     wrapper.TVStereoWrapper(in_file=file,
                                             out_file=options.out_file,
