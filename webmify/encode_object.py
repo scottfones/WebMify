@@ -141,6 +141,11 @@ class NormalizeSecondPassEncode(EncodeObject):
             if self.old_name.exists():
                 self.old_name.unlink()
 
+            try:
+                self.norm_first_encode.downmix_encode.out_file.unlink()
+            except:
+                pass
+
 
 @dataclass
 class OpusEncode(EncodeObject):
@@ -233,7 +238,7 @@ class WebVTTEncode(EncodeObject):
     def __post_init__(self):
         super().__post_init__()
 
-        self.out_file = self.out_file.with_suffix('.mkv')
+        self.out_file = self.out_file.with_suffix('.subs.mkv')
         self.stream = stream_object.WebVTTStream(in_file=self.in_file,
                                                  stream_id=self.stream_id)
 
