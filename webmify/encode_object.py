@@ -39,6 +39,36 @@ class EncodeObject(ABC):
 
 
 @dataclass
+class AACNormalizedDownmixEncode(EncodeObject):
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.norm_second_encode = NormalizeSecondPassEncode(in_file=self.in_file,
+                                                            out_file=self.out_file,
+                                                            stream_id=self.stream_id)
+
+        self.out_file = self.out_file.with_suffix('.norm.aac.mkv')
+        self.stream = stream_object.AACNormalizedDownmixStream(in_file=self.norm_second_encode.out_file,
+                                                               stream_id='0')
+
+        self.do_encode()
+
+    def do_encode(self):
+        self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.norm_second_encode.out_file}']
+        self.encode_cmd += self.stream.filter_flags
+        self.encode_cmd += self.stream.encoder_flags
+        self.encode_cmd += self.stream.metadata
+        self.encode_cmd.append(self.out_file)
+
+        print('\n\nRunning: AAC Normalized Downmix Encode')
+        print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
+        self.comp_proc = subprocess.run(self.encode_cmd)
+
+        if self.norm_second_encode.out_file.exists():
+            self.norm_second_encode.out_file.unlink()
+
+
+@dataclass
 class NormalizeFirstPassEncode(EncodeObject):
     def __post_init__(self):
         super().__post_init__()
