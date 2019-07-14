@@ -159,6 +159,11 @@ class NormalizeSecondPassEncode(EncodeObject):
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
 
+        try:
+            self.norm_first_encode.downmix_encode.out_file.unlink()
+        except:
+            pass
+
         self.cur_lra = self.norm_first_encode.out_lra
         if float(self.cur_lra) > 18.2:
             self.old_name = self.out_file.with_suffix('.old.mkv')
@@ -170,11 +175,6 @@ class NormalizeSecondPassEncode(EncodeObject):
 
             if self.old_name.exists():
                 self.old_name.unlink()
-
-            try:
-                self.norm_first_encode.downmix_encode.out_file.unlink()
-            except:
-                pass
 
 
 @dataclass
