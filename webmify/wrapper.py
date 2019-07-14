@@ -17,6 +17,7 @@ class WrapperObject(ABC):
     in_file: PurePath
     out_file: PurePath
     file_title: str
+    file_summary: str
     wrap_cmd: List[str] = field(default_factory=list)
 
     denoise: bool = False
@@ -37,9 +38,44 @@ class WrapperObject(ABC):
 
 
 @dataclass
-class TVWrapper(WrapperObject, ABC):
-    ep_info: str = ''
+class ChromecastWrapper(WrapperObject):
+    video_stream: encode_object.ChromecastEncode = None
+    audio_stream: encode_object.AACNormalizedDownmixEncode = None
 
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.out_file = self.in_file.with_suffix('.chromecast.mp4')
+        self.video_stream = encode_object.ChromecastEncode(in_file=self.in_file,
+                                                           out_file=self.out_file)
+        self.audio_stream = encode_object.AACNormalizedDownmixEncode(in_file=self.in_file,
+                                                                     out_file=self.out_file)
+
+        self.wrap()
+
+    def wrap(self):
+        self.wrap_cmd = [settings.ffmpeg_bin,
+                         '-i', self.video_stream.out_file,
+                         '-i', self.audio_stream.out_file,
+                         '-map', '0:0', '-map', '1:0',
+                         '-c:v', 'copy', '-c:a', 'copy',
+                         '-metadata', f'title={self.file_title} - Streaming Version',
+                         '-metadata', f'summary={self.file_summary}',
+                         self.out_file]
+
+        print('\n\nRunning: Chromecast Wrapper')
+        print(f"Command: {' '.join(str(element) for element in self.wrap_cmd)}\n")
+        self.comp_proc = subprocess.run(self.wrap_cmd)
+
+        print('\n\nClean-up:')
+        print(f'Deleting video file: {self.video_stream.out_file}')
+        self.video_stream.out_file.unlink()
+        print(f'Deleting audio file: {self.audio_stream.out_file}')
+        self.audio_stream.out_file.unlink()
+
+
+@dataclass
+class TVWrapper(WrapperObject, ABC):
     video_stream: encode_object.VP9Encode = None
     audio_stream: encode_object.OpusEncode = None
 
@@ -71,7 +107,7 @@ class TVMultiChannelWrapper(TVWrapper):
                          '-map', '0:0', '-map', '1:0', '-map', '2:0'
                          '-c:v', 'copy', '-c:a', 'copy',
                          '-metadata', f'title={self.file_title}',
-                         '-metadata', f'summary={self.ep_info}',
+                         '-metadata', f'summary={self.file_summary}',
                          self.out_file]
 
         print('\n\nRunning: TV - Surround Wrapper')
@@ -111,7 +147,7 @@ class TVMultiChannelSubtitleWrapper(TVWrapper):
                          '-map', '2:0', '-map', '3:0',
                          '-c:v', 'copy', '-c:a', 'copy', '-c:s', 'copy'
                          '-metadata', f'title={self.file_title}',
-                         '-metadata', f'summary={self.ep_info}',
+                         '-metadata', f'summary={self.file_summary}',
                          self.out_file]
 
         print('\n\nRunning: TV - Surround - Subtitles Wrapper')
@@ -143,7 +179,7 @@ class TVStereoWrapper(TVWrapper):
                          '-map', '0:0', '-map', '1:0',
                          '-c:v', 'copy', '-c:a', 'copy',
                          '-metadata', f'title={self.file_title}',
-                         '-metadata', f'summary={self.ep_info}',
+                         '-metadata', f'summary={self.file_summary}',
                          self.out_file]
 
         print('\n\nRunning: TV - Stereo Wrapper')
@@ -176,7 +212,7 @@ class TVStereoSubsWrapper(TVWrapper):
                          '-map', '0:0', '-map', '1:0', '-map', '2:0',
                          '-c:v', 'copy', '-c:a', 'copy', '-c:s', 'copy',
                          '-metadata', f'title={self.file_title}',
-                         '-metadata', f'summary={self.ep_info}',
+                         '-metadata', f'summary={self.file_summary}',
                          self.out_file]
 
         print('\n\nRunning: TV - Stereo - Subtitles Wrapper')
