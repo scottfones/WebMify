@@ -101,6 +101,59 @@ class AudioStream(StreamObject, ABC):
 
 
 @dataclass
+class AACStream(AudioStream):
+    # Bitrates from: https://trac.ffmpeg.org/wiki/Encode/AAC vbr esimations
+    def _set_filter(self):
+        filter_dict = {'1': ['-af', 'channelmap=channel_layout=mono'],
+                       '2': ['-af', 'channelmap=channel_layout=stereo'],
+                       '4': ['-ac', '2'],
+                       '6': ['-filter_complex', f'[a:{self.stream_id}]'
+                                                'channelmap=channel_layout=5.1'
+                                                '[ss]'],
+                       '8': ['-filter_complex', f'[a:{self.stream_id}]'
+                                                'channelmap=channel_layout=7.1'
+                                                '[ss]']}
+
+        self.filter_flags = filter_dict[self.channel_num]
+
+    def _set_encoder(self):
+        encoder_dict = {'1': ['-c:a', 'libfdk_aac', '-b:a', '96k', '-cutoff', '18000'],
+                        '2': ['-c:a', 'libfdk_aac', '-b:a', '192k', '-cutoff', '18000'],
+                        '4': ['-c:a', 'libfdk_aac', '-b:a', '192k', '-cutoff', '18000'],
+                        '6': ['-c:a', 'libfdk_aac', '-b:a', '480k', '-cutoff', '18000'],
+                        '8': ['-c:a', 'libfdk_aac', '-b:a', '672k', '-cutoff', '18000']}
+
+        self.encoder_flags = encoder_dict[self.channel_num]
+
+    def _set_metadata(self):
+        metadata_dict = {'1': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
+                                                '- AAC Mono"',
+                               '-metadata:s:a', f'language={self.stream_lang}'],
+                         '2': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
+                                                '- AAC Stereo"',
+                               '-metadata:s:a', f'language={self.stream_lang}'],
+                         '4': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
+                                                '- Opus Stereo"',
+                               '-metadata:s:a', f'language={self.stream_lang}'],
+                         '6': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
+                                                '- AAC Surround Sound - 5.1"',
+                               '-metadata:s:a', f'language={self.stream_lang}'],
+                         '8': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
+                                                '- AAC Surround Sound - 7.1"',
+                               '-metadata:s:a', f'language={self.stream_lang}']}
+
+        self.metadata = metadata_dict[self.channel_num]
+
+
+@dataclass
+class AACNormalizedDownmixStream(AACStream):
+    def _set_metadata(self):
+        self.metadata = ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
+                                          '- AAC Normalized Downmix - 2.0"',
+                         '-metadata:s:a', f'language={self.stream_lang}']
+
+
+@dataclass
 class NormalizedFirstPassStream(AudioStream):
     def _set_filter(self):
         self.filter_flags = ['-af', 'loudnorm=I=-16:LRA=16:tp=-1.5:'
