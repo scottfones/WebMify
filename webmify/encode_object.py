@@ -298,7 +298,7 @@ class ChromecastEncode(EncodeObject):
     def __post_init__(self):
         super().__post_init__()
 
-        self.out_file = self.out_file.with_suffix('.chromecast.mkv')
+        self.out_file = self.out_file.with_suffix('.x264.mkv')
 
         self.stream = stream_object.ChromecastStream(self.in_file,
                                                      self.stream_id)
