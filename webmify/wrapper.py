@@ -61,7 +61,7 @@ class ChromecastWrapper(WrapperObject):
                          '-c:v', 'copy', '-c:a', 'copy',
                          '-metadata', f'title={self.file_title} - Streaming Version',
                          '-metadata', f'summary={self.file_summary}',
-                         self.out_file]
+                         '-movflags', '+faststart', self.out_file]
 
         print('\n\nRunning: Chromecast Wrapper')
         print(f"Command: {' '.join(str(element) for element in self.wrap_cmd)}\n")
