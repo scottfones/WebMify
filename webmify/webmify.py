@@ -106,8 +106,12 @@ def main():
                 title = options.media_title
 
         if input_parser.is_movie(file):
-            video_encode = encode_object.ChromecastEncode(in_file=file)
-            audio_encode = encode_object.NormalizeSecondPassEncode(in_file=file)
+            file_title, file_overview = tmdb_lookup.get_movie_info(title)
+
+            wrapper.ChromecastWrapper(in_file=file,
+                                      out_file=options.out_file,
+                                      file_title=file_title,
+                                      file_overview=file_overview)
         else:
             if not options.season_num:
                 tv_season = input_parser.get_season(file)
@@ -130,24 +134,23 @@ def main():
                     wrapper.TVMultiChannelSubtitleWrapper(in_file=file,
                                                           out_file=options.out_file,
                                                           file_title=file_title,
-                                                          ep_info=file_overview)
+                                                          file_overview=file_overview)
                 else:
                     wrapper.TVMultiChannelWrapper(in_file=file,
                                                   out_file=options.out_file,
                                                   file_title=file_title,
-                                                  ep_info=file_overview)
+                                                  file_overview=file_overview)
             else:
                 if stream_helpers.get_sub_stream(file):
                     wrapper.TVStereoSubsWrapper(in_file=file,
                                                 out_file=options.out_file,
                                                 file_title=file_title,
-                                                ep_info=file_overview,
-                                                denoise=options.denoise)
+                                                file_overview=file_overview)
                 else:
                     wrapper.TVStereoWrapper(in_file=file,
                                             out_file=options.out_file,
                                             file_title=file_title,
-                                            ep_info=file_overview)
+                                            file_overview=file_overview)
 
         prev_file = file
 
