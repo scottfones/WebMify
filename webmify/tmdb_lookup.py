@@ -62,6 +62,7 @@ def get_movie_info(title: str) -> Tuple[str, str, str]:
     else:
         movie_info = get_choice(search_response)
 
-    return (movie_info['title'],
-            movie_info['release_date'],
+    title = f"{movie_info['title']} ({movie_info['release_date'][0:4]})"
+
+    return (title,
             movie_info['overview'])
