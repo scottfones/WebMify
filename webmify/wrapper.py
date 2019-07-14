@@ -45,7 +45,7 @@ class ChromecastWrapper(WrapperObject):
     def __post_init__(self):
         super().__post_init__()
 
-        self.out_file = self.in_file.with_suffix('.chromecast.mp4')
+        self.out_file = self.out_file.with_suffix('.chromecast.mp4')
         self.video_stream = encode_object.ChromecastEncode(in_file=self.in_file,
                                                            out_file=self.out_file)
         self.audio_stream = encode_object.AACNormalizedDownmixEncode(in_file=self.in_file,
@@ -82,7 +82,7 @@ class TVWrapper(WrapperObject, ABC):
     def __post_init__(self):
         super().__post_init__()
 
-        self.out_file = self.in_file.with_suffix('.webm')
+        self.out_file = self.out_file.with_suffix('.webm')
         self.video_stream = encode_object.VP9Encode(in_file=self.in_file,
                                                     out_file=self.out_file)
         self.audio_stream = encode_object.OpusEncode(in_file=self.in_file,
