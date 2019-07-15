@@ -307,7 +307,7 @@ class ChromecastEncode(EncodeObject):
 
     def do_encode(self):
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
-        if hasattr(self.stream, 'filter_flags'):
+        if self.stream.filter_flags is not None:
             self.encode_cmd += self.stream.filter_flags
         self.encode_cmd += self.stream.stream_maps
         self.encode_cmd += self.stream.encoder_flags
@@ -334,7 +334,7 @@ class VP9Encode(EncodeObject):
         self.logfile = self.out_file.parent / self.out_file.stem
 
         self.encode_cmd = [f'{ffmpeg_bin}', '-y', '-i', f'{self.in_file}']
-        if hasattr(self.stream, 'filter_flags'):
+        if self.stream.filter_flags is not None:
             self.encode_cmd += self.stream.filter_flags
         self.encode_cmd += self.stream.stream_maps
         self.encode_cmd += self.stream.encoder_flags
@@ -348,7 +348,7 @@ class VP9Encode(EncodeObject):
         self.comp_proc = subprocess.run(self.encode_cmd)
 
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
-        if hasattr(self.stream, 'filter_flags'):
+        if self.stream.filter_flags is not None:
             self.encode_cmd += self.stream.filter_flags
         self.encode_cmd += self.stream.stream_maps
         self.encode_cmd += self.stream.encoder_flags
