@@ -276,6 +276,8 @@ class WebVTTEncode(EncodeObject):
 
     def do_encode(self):
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
+        if self.stream.filter_flags: 
+            self.encode_cmd += self.stream.filter_flags
         self.encode_cmd += self.stream.stream_maps
         self.encode_cmd += self.stream.encoder_flags
         self.encode_cmd += self.stream.metadata
@@ -307,7 +309,7 @@ class ChromecastEncode(EncodeObject):
 
     def do_encode(self):
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
-        if self.stream.filter_flags is not None:
+        if self.stream.filter_flags:
             self.encode_cmd += self.stream.filter_flags
         self.encode_cmd += self.stream.stream_maps
         self.encode_cmd += self.stream.encoder_flags
@@ -334,7 +336,7 @@ class VP9Encode(EncodeObject):
         self.logfile = self.out_file.parent / self.out_file.stem
 
         self.encode_cmd = [f'{ffmpeg_bin}', '-y', '-i', f'{self.in_file}']
-        if self.stream.filter_flags is not None:
+        if self.stream.filter_flags:
             self.encode_cmd += self.stream.filter_flags
         self.encode_cmd += self.stream.stream_maps
         self.encode_cmd += self.stream.encoder_flags
