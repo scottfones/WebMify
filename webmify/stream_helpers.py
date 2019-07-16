@@ -85,7 +85,7 @@ def get_vp9_tile_columns(in_file: PurePath, stream_id: str) -> str:
     in_file - filename
     stream_id - relative video stream id [0...]
     """
-    height = get_height(input_file, stream_id)
+    height = get_height(in_file, stream_id)
 
     if height <= 240:
         return '0'

@@ -356,8 +356,8 @@ class ChromecastStream(VideoStream):
     def __post_init__(self):
         self.hdr_to_sdr = stream_helpers.is_hdr(in_file=self.in_file,
                                                 stream_id=self.stream_id)
-        self.scale_to_1080 = stream_helpers.get_height(in_file=self.in_file,
-                                                       stream_id=self.stream_id)
+        self.scale_to_1080 = (1080 <= stream_helpers.get_height(in_file=self.in_file,
+                                                                stream_id=self.stream_id))
 
         super().__post_init__()
 

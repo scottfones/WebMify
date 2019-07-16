@@ -88,6 +88,7 @@ class TVWrapper(WrapperObject, ABC):
         self.audio_stream = encode_object.OpusEncode(in_file=self.in_file,
                                                      out_file=self.out_file)
 
+
 @dataclass
 class TVMultiChannelWrapper(TVWrapper):
     downmix_stream: encode_object.OpusNormalizedDownmixEncode = None
