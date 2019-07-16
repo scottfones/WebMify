@@ -149,7 +149,7 @@ class AACStream(AudioStream):
 class AACNormalizedDownmixStream(AACStream):
     def _set_metadata(self):
         self.metadata = ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                          '- AAC Normalized Downmix - 2.0"',
+                                          '- AAC Dialogue Enhanced Downmix - 2.0"',
                          '-metadata:s:a', f'language={self.stream_lang}']
 
 
@@ -240,7 +240,7 @@ class OpusStream(AudioStream):
 class OpusNormalizedDownmixStream(OpusStream):
     def _set_metadata(self):
         self.metadata = ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                          '- Opus Normalized Downmix - 2.0"',
+                                          '- Opus Dialogue Enhanced Downmix - 2.0"',
                          '-metadata:s:a', f'language={self.stream_lang}']
 
 
