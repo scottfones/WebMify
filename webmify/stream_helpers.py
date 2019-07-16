@@ -37,6 +37,27 @@ def get_audio_lang(input_file: PurePath, audio_id: str) -> str:
                                    universal_newlines=True).strip()
 
 
+def get_height(input_file: PurePath, stream_id: str) -> int:
+    """Use ffprobe to query the height of
+    the specified video stream. Returns int
+    of resolution height.
+
+    Parameters:
+    input_file - filename
+    stream_id - relative video stream id [0...]
+    """
+    probe_cmd = ['ffprobe', f'{input_file}', '-loglevel',
+                            'error', '-select_streams', f'v:{stream_id}',
+                            '-show_entries', 'stream=height',
+                            '-of', 'default=nw=1:nk=1']
+
+    height = subprocess.check_output(probe_cmd, stdin=None,
+                                     stderr=None, shell=False,
+                                     universal_newlines=True).strip()
+
+    return int(height)
+
+
 def get_sub_stream(input_file: PurePath) -> str:
     """Use ffprobe to query for subtitle stream
     ids.
@@ -63,15 +84,7 @@ def get_vp9_tile_columns(input_file: PurePath, stream_id: str) -> str:
     input_file - filename
     stream_id - relative video stream id [0...]
     """
-    probe_cmd = ['ffprobe', f'{input_file}', '-loglevel',
-                            'error', '-select_streams', f'v:{stream_id}',
-                            '-show_entries', 'stream=height',
-                            '-of', 'default=nw=1:nk=1']
-
-    height = subprocess.check_output(probe_cmd, stdin=None,
-                                     stderr=None, shell=False,
-                                     universal_newlines=True).strip()
-    height = int(height)
+    height = get_height(input_file, stream_id)
 
     if height <= 240:
         return '0'
