@@ -104,7 +104,7 @@ class TVMultiChannelWrapper(TVWrapper):
                          '-i', self.video_stream.out_file,
                          '-i', self.audio_stream.out_file,
                          '-i', self.downmix_stream.out_file,
-                         '-map', '0:0', '-map', '1:0', '-map', '2:0'
+                         '-map', '0:0', '-map', '1:0', '-map', '2:0',
                          '-c:v', 'copy', '-c:a', 'copy',
                          '-metadata', f'title={self.file_title}',
                          '-metadata', f'summary={self.file_summary}',
