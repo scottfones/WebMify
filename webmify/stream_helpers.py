@@ -83,3 +83,24 @@ def get_vp9_tile_columns(input_file: PurePath, stream_id: str) -> str:
         return '3'
     else:
         return '4'
+
+
+def is_hdr(in_file: PurePath, stream_id: str) -> bool:
+    """Use ffprobe to query the color space of
+    the specified video stream and return True
+    if bt2020nc.
+
+    Parameters:
+    input_file - filename
+    stream_id - relative video stream id [0...]
+    """
+    probe_cmd = ['ffprobe', f'{input_file}', '-loglevel',
+                            'error', '-select_streams', f'v:{stream_id}',
+                            '-show_entries', 'stream=color_space',
+                            '-of', 'default=nw=1:nk=1']
+
+    color_space = subprocess.check_output(probe_cmd, stdin=None,
+                                          stderr=None, shell=False,
+                                          universal_newlines=True).strip()
+
+    return color_space == 'bt2020nc'
