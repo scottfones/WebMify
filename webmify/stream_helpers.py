@@ -3,15 +3,15 @@ from pathlib import Path, PurePath
 from collections import Counter
 
 
-def get_audio_ch(input_file: PurePath, audio_id: str) -> str:
+def get_audio_ch(in_file: PurePath, audio_id: str) -> str:
     """Use ffprobe to query the number of
     audio channels in the specified stream.
 
     Parameters:
-    input_file - filename, string or Path()
+    in_file - filename, string or Path()
     audio_id - relative audio stream id [0...]
     """
-    probe_cmd = ['ffprobe', f'{input_file}', '-loglevel', 'error',
+    probe_cmd = ['ffprobe', f'{in_file}', '-loglevel', 'error',
                  '-select_streams', f'a:{audio_id}', '-show_entries',
                  'stream=channels', '-of', 'default=nw=1:nk=1']
 
@@ -19,15 +19,15 @@ def get_audio_ch(input_file: PurePath, audio_id: str) -> str:
                                    shell=False, universal_newlines=True).strip()
 
 
-def get_audio_lang(input_file: PurePath, audio_id: str) -> str:
+def get_audio_lang(in_file: PurePath, audio_id: str) -> str:
     """Use ffprobe to query the language of
     the specified audio stream.
 
     Parameters:
-    input_file - filename
+    in_file - filename
     audio_id - relative audio stream id [0...]
     """
-    audio_lang_probe_cmd = ['ffprobe', f'{input_file}', '-loglevel',
+    audio_lang_probe_cmd = ['ffprobe', f'{in_file}', '-loglevel',
                             'error', '-select_streams', f'a:{audio_id}',
                             '-show_entries', 'stream_tags=language',
                             '-of', 'default=nw=1:nk=1']
@@ -37,16 +37,16 @@ def get_audio_lang(input_file: PurePath, audio_id: str) -> str:
                                    universal_newlines=True).strip()
 
 
-def get_height(input_file: PurePath, stream_id: str) -> int:
+def get_height(in_file: PurePath, stream_id: str) -> int:
     """Use ffprobe to query the height of
     the specified video stream. Returns int
     of resolution height.
 
     Parameters:
-    input_file - filename
+    in_file - filename
     stream_id - relative video stream id [0...]
     """
-    probe_cmd = ['ffprobe', f'{input_file}', '-loglevel',
+    probe_cmd = ['ffprobe', f'{in_file}', '-loglevel',
                             'error', '-select_streams', f'v:{stream_id}',
                             '-show_entries', 'stream=height',
                             '-of', 'default=nw=1:nk=1']
@@ -58,21 +58,22 @@ def get_height(input_file: PurePath, stream_id: str) -> int:
     return int(height)
 
 
-def get_sub_stream(input_file: PurePath) -> str:
+def get_sub_stream(in_file: PurePath) -> str:
     """Use ffprobe to query for subtitle stream
     ids.
 
     Parameters:
-    input_file - filename
+    in_file - filename
     """
-    probe_cmd = ['ffprobe', f'{input_file}', '-loglevel',
+    probe_cmd = ['ffprobe', f'{in_file}', '-loglevel',
                  'error', '-select_streams', 's:m:language=eng',
                  '-show_entries', 'stream=index', '-of', 'csv=p=0']
 
     return subprocess.check_output(probe_cmd, stdin=None, stderr=None,
                                    shell=False, universal_newlines=True).strip()
 
-def get_vp9_tile_columns(input_file: PurePath, stream_id: str) -> str:
+
+def get_vp9_tile_columns(in_file: PurePath, stream_id: str) -> str:
     """Use ffprobe to query the resolution of
     the specified video stream and return the
     recommended number of tile columns.
@@ -81,7 +82,7 @@ def get_vp9_tile_columns(input_file: PurePath, stream_id: str) -> str:
     https://developers.google.com/media/vp9/settings/vod/
 
     Parameters:
-    input_file - filename
+    in_file - filename
     stream_id - relative video stream id [0...]
     """
     height = get_height(input_file, stream_id)
@@ -107,7 +108,7 @@ def is_hdr(in_file: PurePath, stream_id: str) -> bool:
     input_file - filename
     stream_id - relative video stream id [0...]
     """
-    probe_cmd = ['ffprobe', f'{input_file}', '-loglevel',
+    probe_cmd = ['ffprobe', f'{in_file}', '-loglevel',
                             'error', '-select_streams', f'v:{stream_id}',
                             '-show_entries', 'stream=color_space',
                             '-of', 'default=nw=1:nk=1']
