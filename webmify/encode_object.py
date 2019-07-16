@@ -36,8 +36,15 @@ class EncodeObject(ABC):
         if not isinstance(self.out_file, PurePath):
             self.out_file = Path(self.out_file)
 
-    def do_encode(self) -> None:
+        self._set_stream()
+        self._do_encode()
+        self._clean_up()
 
+    @abstractmethod
+    def _set_stream(self):
+        pass
+
+    def _do_encode(self) -> None:
         self.encode_cmd = [f'{ffmpeg_bin}', '-i', f'{self.in_file}']
         if self.stream.filter_flags:
             self.encode_cmd += self.stream.filter_flags
@@ -55,38 +62,31 @@ class EncodeObject(ABC):
                                         capture_output=self.encode_capture,
                                         text=True)
 
-    def clean_up(self) -> None:
+    def _clean_up(self) -> None:
         pass
 
 
 @dataclass
 class AACNormalizedDownmixEncode(EncodeObject):
-    def __post_init__(self):
-        super().__post_init__()
-
+    def _set_stream(self):
         self.norm_second_encode = NormalizeSecondPassEncode(in_file=self.in_file,
                                                             out_file=self.out_file,
                                                             stream_id=self.stream_id)
 
+        self.work_title = 'AAC Normalized Downmix'
         self.in_file = self.norm_second_encode.out_file
         self.out_file = self.out_file.with_suffix('.norm.aac.mkv')
         self.stream = stream_object.AACNormalizedDownmixStream(in_file=self.in_file,
                                                                stream_id='0')
 
-        self.work_title = 'AAC Normalized Downmix'
-        self.do_encode()
-        self.clean_up()
-
-    def clean_up(self):
+    def _clean_up(self):
         if self.norm_second_encode.out_file.exists():
             self.norm_second_encode.out_file.unlink()
 
 
 @dataclass
 class NormalizeFirstPassEncode(EncodeObject):
-    def __post_init__(self):
-        super().__post_init__()
-
+    def _set_stream(self):
         self.stream_channels = stream_helpers.get_audio_ch(self.in_file, self.stream_id)
         if int(self.stream_channels) > 2:
             self.downmix_encode = StereoDownmixEncode(in_file=self.in_file,
@@ -94,12 +94,10 @@ class NormalizeFirstPassEncode(EncodeObject):
                                                       stream_id=self.stream_id)
             self.in_file = self.downmix_encode.out_file
 
+        self.encode_capture = True
+        self.work_title = 'Normalization First Pass'
         self.stream = stream_object.NormalizedFirstPassStream(self.in_file,
                                                               self.stream_id)
-        self.work_title = 'Normalization First Pass'
-        self.encode_capture = True
-        self.do_encode()
-        self.clean_up()
 
     def _get_norm_i(self):
         norm_i_re = re.compile('\"input_i\" : \"(.+?)\"')
@@ -124,7 +122,7 @@ class NormalizeFirstPassEncode(EncodeObject):
         norm_offset_re = re.compile('\"target_offset\" : \"(.+?)\"')
         self.norm_offset = norm_offset_re.search(self.comp_proc.stderr).groups()[0]
 
-    def clean_up(self):
+    def _clean_up(self):
         self._get_norm_i()
         self._get_norm_tp()
         self._get_norm_lra()
@@ -134,13 +132,14 @@ class NormalizeFirstPassEncode(EncodeObject):
 
 @dataclass
 class NormalizeSecondPassEncode(EncodeObject):
-    def __post_init__(self):
-        super().__post_init__()
-
+    def _set_stream(self):
         self.norm_first_encode = NormalizeFirstPassEncode(in_file=self.in_file,
                                                           out_file=self.out_file,
                                                           stream_id=self.stream_id)
 
+        self.work_title = 'Normalization Second Pass'
+        self.in_file = self.norm_first_encode.in_file
+        self.out_file = self.out_file.with_suffix('.norm.mkv')
         self.stream = stream_object.NormalizedSecondPassStream(self.norm_first_encode.in_file,
                                                                self.stream_id,
                                                                norm_i=self.norm_first_encode.norm_i,
@@ -149,14 +148,7 @@ class NormalizeSecondPassEncode(EncodeObject):
                                                                norm_thresh=self.norm_first_encode.norm_thresh,
                                                                norm_tar_off=self.norm_first_encode.norm_offset)
 
-        self.in_file = self.norm_first_encode.in_file
-        self.out_file = self.out_file.with_suffix('.norm.mkv')
-
-        self.work_title = 'Normalization Second Pass'
-        self.do_encode()
-        self.clean_up()
-
-    def clean_up(self):
+    def _clean_up(self):
         try:
             self.norm_first_encode.downmix_encode.out_file.unlink()
         except:
@@ -177,52 +169,38 @@ class NormalizeSecondPassEncode(EncodeObject):
 
 @dataclass
 class OpusEncode(EncodeObject):
-    def __post_init__(self):
-        super().__post_init__()
-
+    def _set_stream(self):
+        self.work_title = 'Opus'
         self.out_file = self.out_file.with_suffix('.audio.opus')
         self.stream = stream_object.OpusStream(in_file=self.in_file,
                                                stream_id=self.stream_id)
 
-        self.work_title = 'Opus'
-        self.do_encode()
-
 
 @dataclass
 class OpusNormalizedDownmixEncode(EncodeObject):
-    def __post_init__(self):
-        super().__post_init__()
-
+    def _set_stream(self):
         self.norm_second_encode = NormalizeSecondPassEncode(in_file=self.in_file,
                                                             out_file=self.out_file,
                                                             stream_id=self.stream_id)
 
+        self.work_title = 'Opus Normalized Downmix'
         self.in_file = self.norm_second_encode.out_file
         self.out_file = self.out_file.with_suffix('.norm.opus')
         self.stream = stream_object.OpusNormalizedDownmixStream(in_file=self.norm_second_encode.out_file,
                                                                 stream_id='0')
 
-        self.work_title = 'Opus Normalized Downmix'
-        self.do_encode()
-        self.clean_up()
-
-    def clean_up(self):
+    def _clean_up(self):
         if self.norm_second_encode.out_file.exists():
             self.norm_second_encode.out_file.unlink()
 
 
 @dataclass
 class StereoDownmixEncode(EncodeObject):
-    def __post_init__(self):
-        super().__post_init__()
-
+    def _set_stream(self):
+        self.work_title = 'Stereo Downmix'
         self.out_file = self.out_file.with_suffix('.downmix.mkv')
-
         self.stream = stream_object.StereoDownmixStream(self.in_file,
                                                         self.stream_id)
-
-        self.work_title = 'Stereo Downmix'
-        self.do_encode()
 
 
 ###################################
@@ -234,15 +212,11 @@ class StereoDownmixEncode(EncodeObject):
 
 @dataclass
 class WebVTTEncode(EncodeObject):
-    def __post_init__(self):
-        super().__post_init__()
-
+    def _set_stream(self):
+        self.work_title = 'Subtitle WebVTT'
         self.out_file = self.out_file.with_suffix('.subs.mkv')
         self.stream = stream_object.WebVTTStream(in_file=self.in_file,
                                                  stream_id=self.stream_id)
-
-        self.work_title = 'Subtitle WebVTT'
-        self.do_encode()
 
 
 ###################################
@@ -254,33 +228,21 @@ class WebVTTEncode(EncodeObject):
 
 @dataclass
 class ChromecastEncode(EncodeObject):
-    def __post_init__(self):
-        super().__post_init__()
-
+    def _set_stream(self):
+        self.work_title = 'Chromecast Video'
         self.out_file = self.out_file.with_suffix('.x264.mkv')
-
         self.stream = stream_object.ChromecastStream(self.in_file,
                                                      self.stream_id)
-
-        self.work_title = 'Chromecast Video'
-        self.do_encode()
 
 
 @dataclass
 class VP9Encode(EncodeObject):
-    def __post_init__(self):
-        super().__post_init__()
-
+    def _set_stream(self):
         self.out_file = self.out_file.with_suffix('.vp9.webm')
-
+        self.logfile = self.out_file.parent / self.out_file.stem
         self.stream = stream_object.VP9Stream(self.in_file, self.stream_id)
 
-        self.do_encode()
-        self.clean_up()
-
-    def do_encode(self):
-        self.logfile = self.out_file.parent / self.out_file.stem
-
+    def _do_encode(self):
         self.encode_cmd = [f'{ffmpeg_bin}', '-y', '-i', f'{self.in_file}']
         if self.stream.filter_flags:
             self.encode_cmd += self.stream.filter_flags
@@ -309,6 +271,6 @@ class VP9Encode(EncodeObject):
         print(f"Command: {' '.join(str(element) for element in self.encode_cmd)}\n")
         self.comp_proc = subprocess.run(self.encode_cmd)
 
-    def clean_up(self):
+    def _clean_up(self):
         self.logfile = self.logfile.parent / (self.logfile.name + f'-{self.stream_id}.log')
         self.logfile.unlink()
