@@ -129,7 +129,7 @@ def main():
                                                                          tv_season,
                                                                          tv_episode)
 
-            if int(stream_helpers.get_audio_ch(input_file=file, audio_id='0')) > 2:
+            if int(stream_helpers.get_audio_ch(in_file=file, audio_id='0')) > 2:
                 if stream_helpers.get_sub_stream(file):
                     wrapper.TVMultiChannelSubtitleWrapper(in_file=file,
                                                           out_file=options.out_file,

@@ -356,7 +356,8 @@ class ChromecastStream(VideoStream):
     def __post_init__(self):
         self.hdr_to_sdr = stream_helpers.is_hdr(in_file=self.in_file,
                                                 stream_id=self.stream_id)
-        self.scale_to_1080 = True
+        self.scale_to_1080 = stream_helpers.get_height(in_file=self.in_file,
+                                                       stream_id=self.stream_id)
 
         super().__post_init__()
 
@@ -372,7 +373,7 @@ class ChromecastStream(VideoStream):
 @dataclass
 class VP9Stream(VideoStream):
     def _set_encoder(self):
-        self.tile_columns = stream_helpers.get_vp9_tile_columns(input_file=self.in_file,
+        self.tile_columns = stream_helpers.get_vp9_tile_columns(in_file=self.in_file,
                                                                 stream_id=self.stream_id)
 
         self.encoder_flags = ['-c:v', 'libvpx-vp9', '-crf', self.crf, '-b:v',
