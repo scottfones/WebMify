@@ -354,7 +354,8 @@ class VideoStream(StreamObject, ABC):
 @dataclass
 class ChromecastStream(VideoStream):
     def __post_init__(self):
-        self.hdr_to_sdr = True
+        self.hdr_to_sdr = stream_helpers.is_hdr(in_file=self.in_file,
+                                                stream_id=self.stream_id)
         self.scale_to_1080 = True
 
         super().__post_init__()
