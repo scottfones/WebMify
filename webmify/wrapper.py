@@ -123,6 +123,7 @@ class TVMultiChannelWrapper(TVWrapper):
         print(f'Deleting downmix file: {self.downmix_stream.out_file}')
         self.downmix_stream.out_file.unlink()
 
+
 @dataclass
 class TVMultiChannelSubtitleWrapper(TVWrapper):
     downmix_stream: encode_object.OpusNormalizedDownmixEncode = None
@@ -131,9 +132,9 @@ class TVMultiChannelSubtitleWrapper(TVWrapper):
     def __post_init__(self):
         super().__post_init__()
 
-        self.downmix_stream = encode_object.OpusNormalizedDownmixEncode(in_file=self.in_file, 
+        self.downmix_stream = encode_object.OpusNormalizedDownmixEncode(in_file=self.in_file,
                                                                         out_file=self.out_file)
-        self.sub_stream = encode_object.WebVTTEncode(in_file=self.in_file, 
+        self.sub_stream = encode_object.WebVTTEncode(in_file=self.in_file,
                                                      out_file=self.out_file)
 
         self.wrap()
