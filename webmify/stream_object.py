@@ -313,8 +313,14 @@ class VideoStream(StreamObject, ABC):
     def __post_init__(self):
         super().__post_init__()
 
+    def _add_filter(self, tmp_filter: str):
+        if len(self.filter_flags == 1):
+            self.filter_flags.append(self.tmp_filter)
+        else:
+            self.filter_flags[1] += self.tmp_filter
+
     def _filter_len_check(self):
-        if len(self.filter_flags) > 1:
+        if len(self.filter_flags) == 2:
             self.filter_flags[1] += ','
 
     def _set_filter(self):
@@ -341,11 +347,12 @@ class VideoStream(StreamObject, ABC):
             self.filter_flags.append('scale=1280:-2')
 
         if self.hdr_to_sdr:
+            self.tmp_filter = ('zscale=t=linear,format=gbrpf32le,'
+                               'zscale=p=bt709,tonemap=tonemap='
+                               'hable:desat=0.0,zscale=t=bt709:'
+                               'm=bt709:r=tv,format=yuv420p')
             self._filter_len_check()
-            self.filter_flags[1] += ('zscale=t=linear,format=gbrpf32le,'
-                                     'zscale=p=bt709,tonemap=tonemap='
-                                     'hable:desat=0.0,zscale=t=bt709:'
-                                     'm=bt709:r=tv,format=yuv420p')
+            self._add_filter(self.tmp_filter)
 
     def _set_stream_maps(self):
         self.stream_maps = ['-map', f'0:v:{self.stream_id}']
@@ -357,7 +364,7 @@ class ChromecastStream(VideoStream):
         self.hdr_to_sdr = stream_helpers.is_hdr(in_file=self.in_file,
                                                 stream_id=self.stream_id)
         self.scale_to_1080 = (1080 < stream_helpers.get_height(in_file=self.in_file,
-                                                                stream_id=self.stream_id))
+                                                               stream_id=self.stream_id))
 
         super().__post_init__()
 
