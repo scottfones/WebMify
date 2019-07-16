@@ -160,7 +160,7 @@ class NormalizedFirstPassStream(AudioStream):
                                     'print_format=json']
 
     def _set_encoder(self):
-        pass
+        self.encoder_flags = None
 
     def _set_metadata(self):
         self.metadata = ['-f', 'null']
@@ -331,6 +331,8 @@ class VideoStream(StreamObject, ABC):
 
         if self.any_filter:
             self.filter_flags = ['-vf']
+        else:
+            self.filter_flags = None
 
         if self.scale_to_1080:
             self.filter_flags.append('scale=1920:-2')
