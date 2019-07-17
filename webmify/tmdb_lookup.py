@@ -64,5 +64,7 @@ def get_movie_info(title: str) -> Tuple[str, str, str]:
 
     title = f"{movie_info['title']} ({movie_info['release_date'][0:4]})"
 
+    display_movie(movie_info)
+
     return (title,
             movie_info['overview'])

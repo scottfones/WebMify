@@ -6,6 +6,13 @@ from typing import List, NoReturn, Tuple
 from tvdb_api import tvdb_shownotfound, tvdb_seasonnotfound, tvdb_episodenotfound
 
 
+def display_episode(title: str, s_num: str, ep_num: str, episode: dict) -> NoReturn:
+    print(f'Show: {title}')
+    print(f'Season: {s_num}')
+    print(f'Episode: {ep_num}')
+    print(f"Summary: {episode['episodeName']}")
+
+
 def get_title(title: str) -> str:
     tvdb = tvdb_api.Tvdb(apikey=api_keys.thetvdb_key, interactive=True)
 
@@ -31,6 +38,7 @@ def get_file_metadata(title: str, s_num: str, ep_num: str) -> str:
     except tvdb_episodenotfound:
         sys.exit("TV Episode '{ep_num}' not found. Try modifying the season with the --episode flag.")
 
+    display_episode(title, s_num, ep_num, episode)
+
     return (f"{title} - S{s_num}E{ep_num} - {episode['episodeName']}",
             episode['overview'])
-
