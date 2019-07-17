@@ -152,6 +152,10 @@ def main():
                                             out_file=options.out_file,
                                             file_title=file_title,
                                             file_summary=file_summary)
+        
+        if options.del_orig:
+            print(f'Deleting Input File: {file}')
+            file.unlink()
 
         prev_file = file
 
