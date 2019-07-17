@@ -113,15 +113,15 @@ def main():
                                       file_title=file_title,
                                       file_summary=file_summary)
         else:
-            if not options.season_num:
-                tv_season = input_parser.get_season(file)
-            else:
+            if options.season_num:
                 tv_season = options.season_num
-
-            if not options.episode_num:
-                tv_episode = input_parser.get_episode(file)
             else:
+                tv_season = input_parser.get_season(file)
+
+            if options.episode_num:
                 tv_episode = options.episode_num
+            else:
+                tv_episode = input_parser.get_episode(file)
 
             if not input_parser.is_batch_repeat(prev_file, file):
                 title = thetvdb_lookup.get_title(title)
@@ -131,16 +131,17 @@ def main():
                                                                         tv_episode)
 
             if int(stream_helpers.get_audio_ch(in_file=file, audio_id='0')) > 2:
-                if stream_helpers.get_sub_stream(file):
+                if options.burn_subs or not stream_helpers.get_sub_stream(file):
+                    wrapper.TVMultiChannelWrapper(in_file=file,
+                                                  out_file=options.out_file,
+                                                  file_title=file_title,
+                                                  file_summary=file_summary,
+                                                  burn_subs=options.burn_subs)
+                else:
                     wrapper.TVMultiChannelSubtitleWrapper(in_file=file,
                                                           out_file=options.out_file,
                                                           file_title=file_title,
                                                           file_summary=file_summary)
-                else:
-                    wrapper.TVMultiChannelWrapper(in_file=file,
-                                                  out_file=options.out_file,
-                                                  file_title=file_title,
-                                                  file_summary=file_summary)
             else:
                 if stream_helpers.get_sub_stream(file):
                     wrapper.TVStereoSubsWrapper(in_file=file,

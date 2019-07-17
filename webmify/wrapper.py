@@ -27,7 +27,8 @@ class WrapperObject(ABC):
             self.in_file = Path(self.in_file)
 
         if not self.out_file:
-            self.out_file = Path('.') / (self.in_file.stem + '.out.mkv')
+            # self.out_file = Path('.') / (self.in_file.stem + '.out.mkv')
+            self.out_file = self.in_file
 
         if not isinstance(self.out_file, PurePath):
             self.out_file = Path(self.out_file)
@@ -79,12 +80,15 @@ class TVWrapper(WrapperObject, ABC):
     video_stream: encode_object.VP9Encode = None
     audio_stream: encode_object.OpusEncode = None
 
+    burn_subs: bool = False
+
     def __post_init__(self):
         super().__post_init__()
 
         self.out_file = self.out_file.with_suffix('.webm')
         self.video_stream = encode_object.VP9Encode(in_file=self.in_file,
-                                                    out_file=self.out_file)
+                                                    out_file=self.out_file,
+                                                    burn_subs=self.burn_subs)
         self.audio_stream = encode_object.OpusEncode(in_file=self.in_file,
                                                      out_file=self.out_file)
 

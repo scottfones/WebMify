@@ -354,6 +354,11 @@ class VideoStream(StreamObject, ABC):
             self._filter_len_check()
             self._add_filter(self.tmp_filter)
 
+        if self.burn_subs:
+            self.tmp_filter = f'subtitles={self.in_file'
+            self._filter_len_check()
+            self._add_filter(self.tmp_filter)
+
     def _set_stream_maps(self):
         self.stream_maps = ['-map', f'0:v:{self.stream_id}']
 
