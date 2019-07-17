@@ -7,10 +7,12 @@ from tvdb_api import tvdb_shownotfound, tvdb_seasonnotfound, tvdb_episodenotfoun
 
 
 def display_episode(title: str, s_num: str, ep_num: str, episode: dict) -> NoReturn:
+    print(f'\nEpisode Info:')
     print(f'Show: {title}')
     print(f'Season: {s_num}')
     print(f'Episode: {ep_num}')
-    print(f"Summary: {episode['episodeName']}")
+    print(f"Episode Title: {episode['episodeName']}")
+    print(f"Episode Summary: {episode['overview']}")
 
 
 def get_title(title: str) -> str:
