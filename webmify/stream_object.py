@@ -301,8 +301,8 @@ class VideoStream(StreamObject, ABC):
 
     """
 
-    autocrop: bool = False
     burn_subs: bool = False
+    crop: bool = False
     cpu_threads: str = settings.cpu_threads
     crf: str = '19'
     denoise: bool = False
@@ -310,11 +310,8 @@ class VideoStream(StreamObject, ABC):
     scale_to_1080: bool = False
     scale_to_720: bool = False
 
-    def __post_init__(self):
-        super().__post_init__()
-
     def _add_filter(self, tmp_filter: str):
-        if len(self.filter_flags == 1):
+        if len(self.filter_flags) == 1:
             self.filter_flags.append(self.tmp_filter)
         else:
             self.filter_flags[1] += self.tmp_filter
@@ -324,7 +321,7 @@ class VideoStream(StreamObject, ABC):
             self.filter_flags[1] += ','
 
     def _set_filter(self):
-        self.any_filter = (self.autocrop or
+        self.any_filter = (self.crop or
                            self.burn_subs or
                            self.denoise or
                            self.hdr_to_sdr or
@@ -340,11 +337,23 @@ class VideoStream(StreamObject, ABC):
         else:
             self.filter_flags = None
 
+        if self.crop:
+            print('\nParsing crop dimensions:')
+            self.crop_dimns = stream_helpers.get_crop_dimns(self.in_file)
+            print(f'Cropping to: {self.crop_dimns}')
+            self.tmp_filter = f'crop={self.crop_dimns}'
+            self._filter_len_check()
+            self._add_filter(self.tmp_filter)
+
         if self.scale_to_1080:
-            self.filter_flags.append('scale=1920:-2')
+            self.tmp_filter = 'scale=1920:-2'
+            self._filter_len_check()
+            self._add_filter(self.tmp_filter)
 
         if self.scale_to_720:
-            self.filter_flags.append('scale=1280:-2')
+            self.tmp_filter = 'scale=1280:-2'
+            self._filter_len_check()
+            self._add_filter(self.tmp_filter)
 
         if self.hdr_to_sdr:
             self.tmp_filter = ('zscale=t=linear,format=gbrpf32le,'
@@ -355,7 +364,7 @@ class VideoStream(StreamObject, ABC):
             self._add_filter(self.tmp_filter)
 
         if self.burn_subs:
-            self.tmp_filter = f'subtitles={self.in_file'
+            self.tmp_filter = f'subtitles={self.in_file}'
             self._filter_len_check()
             self._add_filter(self.tmp_filter)
 

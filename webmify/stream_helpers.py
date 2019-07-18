@@ -1,3 +1,4 @@
+import re
 import subprocess
 from pathlib import Path, PurePath
 from collections import Counter
@@ -35,6 +36,22 @@ def get_audio_lang(in_file: PurePath, audio_id: str) -> str:
     return subprocess.check_output(audio_lang_probe_cmd, stdin=None,
                                    stderr=None, shell=False,
                                    universal_newlines=True).strip()
+
+
+def get_crop_dimns(in_file: PurePath):
+    crop_cmd = ['ffmpeg', '-ss', '300', '-t', '1200', '-i', f'{in_file}',
+                '-vf', 'cropdetect', '-an', '-f', 'null', '/dev/null']
+
+    comp_proc = subprocess.run(crop_cmd,
+                               capture_output=True,
+                               text=True)
+
+    crop_re = re.compile('crop=([0-9]+:[0-9]+:[0-9]+:[0-9]+)')
+    crops_found = crop_re.findall(comp_proc.stderr)
+
+    crop_counts = Counter(crops_found)
+
+    return crop_counts.most_common(1)[0][0]
 
 
 def get_height(in_file: PurePath, stream_id: str) -> int:

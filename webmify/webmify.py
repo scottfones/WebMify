@@ -23,6 +23,11 @@ def main():
                            default=False,
                            help='burn subtitles into video, default = false')
 
+    ffmpeg_opts.add_option('--crop',
+                           action='store_true', dest='crop',
+                           default=False,
+                           help='apply crop, default = false')
+
     ffmpeg_opts.add_option('--denoise',
                            action='store_true', dest='denoise',
                            default=False,
@@ -111,7 +116,8 @@ def main():
             wrapper.ChromecastWrapper(in_file=file,
                                       out_file=options.out_file,
                                       file_title=file_title,
-                                      file_summary=file_summary)
+                                      file_summary=file_summary,
+                                      crop=options.crop)
         else:
             if options.season_num:
                 tv_season = options.season_num
@@ -143,16 +149,17 @@ def main():
                                                           file_title=file_title,
                                                           file_summary=file_summary)
             else:
-                if stream_helpers.get_sub_stream(file):
+                if options.burn_subs or not stream_helpers.get_sub_stream(file):
+                    wrapper.TVStereoWrapper(in_file=file,
+                                            out_file=options.out_file,
+                                            file_title=file_title,
+                                            file_summary=file_summary,
+                                            burn_subs=options.burn_subs)
+                else:
                     wrapper.TVStereoSubsWrapper(in_file=file,
                                                 out_file=options.out_file,
                                                 file_title=file_title,
                                                 file_summary=file_summary)
-                else:
-                    wrapper.TVStereoWrapper(in_file=file,
-                                            out_file=options.out_file,
-                                            file_title=file_title,
-                                            file_summary=file_summary)
         
         if options.del_orig:
             print(f'Deleting Input File: {file}')

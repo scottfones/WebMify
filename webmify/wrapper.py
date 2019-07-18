@@ -20,6 +20,7 @@ class WrapperObject(ABC):
     file_summary: str
     wrap_cmd: List[str] = field(default_factory=list)
 
+    crop: bool = False
     denoise: bool = False
 
     def __post_init__(self):
@@ -48,7 +49,8 @@ class ChromecastWrapper(WrapperObject):
 
         self.out_file = self.out_file.with_suffix('.chromecast.mp4')
         self.video_stream = encode_object.ChromecastEncode(in_file=self.in_file,
-                                                           out_file=self.out_file)
+                                                           out_file=self.out_file,
+                                                           crop=self.crop)
         self.audio_stream = encode_object.AACNormalizedDownmixEncode(in_file=self.in_file,
                                                                      out_file=self.out_file)
 
@@ -88,6 +90,7 @@ class TVWrapper(WrapperObject, ABC):
         self.out_file = self.out_file.with_suffix('.webm')
         self.video_stream = encode_object.VP9Encode(in_file=self.in_file,
                                                     out_file=self.out_file,
+                                                    crop=self.crop,
                                                     burn_subs=self.burn_subs)
         self.audio_stream = encode_object.OpusEncode(in_file=self.in_file,
                                                      out_file=self.out_file)
