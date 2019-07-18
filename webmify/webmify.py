@@ -142,24 +142,28 @@ def main():
                                                   out_file=options.out_file,
                                                   file_title=file_title,
                                                   file_summary=file_summary,
-                                                  burn_subs=options.burn_subs)
+                                                  burn_subs=options.burn_subs,
+                                                  crop=options.crop)
                 else:
                     wrapper.TVMultiChannelSubtitleWrapper(in_file=file,
                                                           out_file=options.out_file,
                                                           file_title=file_title,
-                                                          file_summary=file_summary)
+                                                          file_summary=file_summary,
+                                                          crop=options.crop)
             else:
                 if options.burn_subs or not stream_helpers.get_sub_stream(file):
                     wrapper.TVStereoWrapper(in_file=file,
                                             out_file=options.out_file,
                                             file_title=file_title,
                                             file_summary=file_summary,
-                                            burn_subs=options.burn_subs)
+                                            burn_subs=options.burn_subs,
+                                            crop=options.crop)
                 else:
                     wrapper.TVStereoSubsWrapper(in_file=file,
                                                 out_file=options.out_file,
                                                 file_title=file_title,
-                                                file_summary=file_summary)
+                                                file_summary=file_summary,
+                                                crop=options.crop)
         
         if options.del_orig:
             print(f'Deleting Input File: {file}')
