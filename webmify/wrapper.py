@@ -3,7 +3,7 @@ import encode_object
 
 import subprocess
 from pathlib import Path, PurePath
-from typing import List, Tuple
+from typing import List, NoReturn, Tuple
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
@@ -20,8 +20,10 @@ class WrapperObject(ABC):
     file_summary: str
     wrap_cmd: List[str] = field(default_factory=list)
 
+    burn_subs: bool = False
     crop: bool = False
     denoise: bool = False
+    sub_file: PurePath = ''
 
     def __post_init__(self):
         if not isinstance(self.in_file, PurePath):
@@ -34,8 +36,11 @@ class WrapperObject(ABC):
         if not isinstance(self.out_file, PurePath):
             self.out_file = Path(self.out_file)
 
+        if not isinstance(self.sub_file):
+            self.sub_file = Path(self.sub_file)
+
     @abstractmethod
-    def wrap(self) -> None:
+    def wrap(self) -> NoReturn:
         pass
 
 
@@ -45,11 +50,15 @@ class ChromecastWrapper(WrapperObject):
     audio_stream: encode_object.AACNormalizedDownmixEncode = None
 
     def __post_init__(self):
+        self.crop = True
+        if self.sub_file:
+            self.burn_subs = True
         super().__post_init__()
 
         self.out_file = self.out_file.with_suffix('.chromecast.mp4')
         self.video_stream = encode_object.ChromecastEncode(in_file=self.in_file,
                                                            out_file=self.out_file,
+                                                           burn_subs=self.burn_subs,
                                                            crop=self.crop)
         self.audio_stream = encode_object.AACNormalizedDownmixEncode(in_file=self.in_file,
                                                                      out_file=self.out_file)
@@ -81,8 +90,6 @@ class ChromecastWrapper(WrapperObject):
 class TVWrapper(WrapperObject, ABC):
     video_stream: encode_object.VP9Encode = None
     audio_stream: encode_object.OpusEncode = None
-
-    burn_subs: bool = False
 
     def __post_init__(self):
         super().__post_init__()
@@ -141,7 +148,7 @@ class TVMultiChannelSubtitleWrapper(TVWrapper):
 
         self.downmix_stream = encode_object.OpusNormalizedDownmixEncode(in_file=self.in_file,
                                                                         out_file=self.out_file)
-        self.sub_stream = encode_object.WebVTTEncode(in_file=self.in_file,
+        self.sub_stream = encode_object.WebVTTEncode(in_file=self.sub_file,
                                                      out_file=self.out_file)
 
         self.wrap()
@@ -203,13 +210,14 @@ class TVStereoWrapper(TVWrapper):
 
 
 @dataclass
-class TVStereoSubsWrapper(TVWrapper):
+class TVStereoSubtitleWrapper(TVWrapper):
     sub_stream: encode_object.WebVTTEncode = None
 
     def __post_init__(self):
         super().__post_init__()
 
-        self.sub_stream = encode_object.WebVTTEncode(in_file=self.in_file, out_file=self.out_file)
+        self.sub_stream = encode_object.WebVTTEncode(in_file=self.sub_file,
+                                                     out_file=self.out_file)
 
         self.wrap()
 

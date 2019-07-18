@@ -273,9 +273,6 @@ class StereoDownmixStream(AudioStream):
 
 @dataclass
 class WebVTTStream(StreamObject):
-    def __post_init__(self):
-        super().__post_init__()
-
     def _set_filter(self):
         self.filter_flags = None
 
@@ -309,6 +306,7 @@ class VideoStream(StreamObject, ABC):
     hdr_to_sdr: bool = False
     scale_to_1080: bool = False
     scale_to_720: bool = False
+    sub_file: PurePath = ''
 
     def _add_filter(self, tmp_filter: str):
         if len(self.filter_flags) == 1:
@@ -364,7 +362,7 @@ class VideoStream(StreamObject, ABC):
             self._add_filter(self.tmp_filter)
 
         if self.burn_subs:
-            self.tmp_filter = f'subtitles={self.in_file}'
+            self.tmp_filter = f'subtitles={self.sub_file}'
             self._filter_len_check()
             self._add_filter(self.tmp_filter)
 

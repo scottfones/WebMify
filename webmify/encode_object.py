@@ -228,14 +228,18 @@ class WebVTTEncode(EncodeObject):
 
 @dataclass
 class ChromecastEncode(EncodeObject):
-    crop: bool = False
+    burn_subs: bool = False
+    crop: bool = True
+    sub_file: PurePath = ''
 
     def _set_stream(self):
         self.work_title = 'Chromecast Video'
         self.out_file = self.out_file.with_suffix('.x264.mkv')
         self.stream = stream_object.ChromecastStream(self.in_file,
                                                      self.stream_id,
-                                                     crop=self.crop)
+                                                     burn_subs=self.burn_subs,
+                                                     crop=self.crop,
+                                                     sub_file=self.sub_file)
 
 
 @dataclass

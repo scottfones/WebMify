@@ -57,7 +57,8 @@ def main():
 
     tmdb_opts = OptionGroup(parser,
                             'Metadata Options',
-                            'These options modify TMDb search and metadata.')
+                            'These options modify TMDb and '
+                            'TheTVDatabase search and metadata.')
 
     tmdb_opts.add_option('--episode',
                          action='store', type='string', dest='episode_num',
@@ -104,6 +105,13 @@ def main():
     for file in work_list:
         print('\n\nX        NEW ENCODE        X\n\n')
 
+        if options.ext_subs:
+            sub_file = file.with_suffix('.srt')
+        elif stream_helpers.get_sub_stream(file):
+            sub_file = file
+        else:
+            sub_file = ''
+
         if not input_parser.is_batch_repeat(prev_file, file):
             if not options.media_title:
                 title = input_parser.get_title(file)
@@ -117,7 +125,8 @@ def main():
                                       out_file=options.out_file,
                                       file_title=file_title,
                                       file_summary=file_summary,
-                                      crop=options.crop)
+                                      crop=options.crop,
+                                      sub_file=sub_file)
         else:
             if options.season_num:
                 tv_season = options.season_num
@@ -137,34 +146,38 @@ def main():
                                                                         tv_episode)
 
             if int(stream_helpers.get_audio_ch(in_file=file, audio_id='0')) > 2:
-                if options.burn_subs or not stream_helpers.get_sub_stream(file):
+                if options.burn_subs or not sub_file:
                     wrapper.TVMultiChannelWrapper(in_file=file,
                                                   out_file=options.out_file,
                                                   file_title=file_title,
                                                   file_summary=file_summary,
                                                   burn_subs=options.burn_subs,
-                                                  crop=options.crop)
+                                                  crop=options.crop,
+                                                  sub_file=sub_file)
                 else:
                     wrapper.TVMultiChannelSubtitleWrapper(in_file=file,
                                                           out_file=options.out_file,
                                                           file_title=file_title,
                                                           file_summary=file_summary,
-                                                          crop=options.crop)
+                                                          crop=options.crop,
+                                                          sub_file=sub_file)
             else:
-                if options.burn_subs or not stream_helpers.get_sub_stream(file):
+                if options.burn_subs or not sub_file:
                     wrapper.TVStereoWrapper(in_file=file,
                                             out_file=options.out_file,
                                             file_title=file_title,
                                             file_summary=file_summary,
                                             burn_subs=options.burn_subs,
-                                            crop=options.crop)
+                                            crop=options.crop,
+                                            sub_file=sub_file)
                 else:
                     wrapper.TVStereoSubsWrapper(in_file=file,
                                                 out_file=options.out_file,
                                                 file_title=file_title,
                                                 file_summary=file_summary,
-                                                crop=options.crop)
-        
+                                                crop=options.crop,
+                                                sub_file=sub_file)
+
         if options.del_orig:
             print(f'Deleting Input File: {file}')
             file.unlink()
