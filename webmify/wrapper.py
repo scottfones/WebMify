@@ -36,7 +36,7 @@ class WrapperObject(ABC):
         if not isinstance(self.out_file, PurePath):
             self.out_file = Path(self.out_file)
 
-        if not isinstance(self.sub_file):
+        if not isinstance(self.sub_file, PurePath):
             self.sub_file = Path(self.sub_file)
 
     @abstractmethod
