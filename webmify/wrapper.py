@@ -59,7 +59,8 @@ class ChromecastWrapper(WrapperObject):
         self.video_stream = encode_object.ChromecastEncode(in_file=self.in_file,
                                                            out_file=self.out_file,
                                                            burn_subs=self.burn_subs,
-                                                           crop=self.crop)
+                                                           crop=self.crop,
+                                                           sub_file=self.sub_file)
         self.audio_stream = encode_object.AACNormalizedDownmixEncode(in_file=self.in_file,
                                                                      out_file=self.out_file)
 
