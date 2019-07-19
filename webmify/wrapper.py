@@ -99,7 +99,8 @@ class TVWrapper(WrapperObject, ABC):
         self.video_stream = encode_object.VP9Encode(in_file=self.in_file,
                                                     out_file=self.out_file,
                                                     crop=self.crop,
-                                                    burn_subs=self.burn_subs)
+                                                    burn_subs=self.burn_subs,
+                                                    sub_file=self.sub_file)
         self.audio_stream = encode_object.OpusEncode(in_file=self.in_file,
                                                      out_file=self.out_file)
 

@@ -246,6 +246,7 @@ class ChromecastEncode(EncodeObject):
 class VP9Encode(EncodeObject):
     burn_subs: bool = False
     crop: bool = False
+    sub_file: PurePath = ''
 
     def _set_stream(self):
         self.out_file = self.out_file.with_suffix('.vp9.webm')
@@ -253,7 +254,8 @@ class VP9Encode(EncodeObject):
         self.stream = stream_object.VP9Stream(self.in_file,
                                               self.stream_id,
                                               burn_subs=self.burn_subs,
-                                              crop=self.crop)
+                                              crop=self.crop,
+                                              sub_file=self.sub_file)
 
     def _do_encode(self):
         self.encode_cmd = [f'{ffmpeg_bin}', '-y', '-i', f'{self.in_file}']
