@@ -97,7 +97,7 @@ def get_sub_stream(in_file: PurePath) -> str:
                                    shell=False, universal_newlines=True).strip()
 
 
-def get_sub_stream(in_file: PurePath, stream_id: str) -> str:
+def get_sub_type(in_file: PurePath, stream_id: str) -> str:
     """Use ffprobe to query the subtitle stream
     type.
 
