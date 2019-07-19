@@ -362,7 +362,10 @@ class VideoStream(StreamObject, ABC):
             self._add_filter(self.tmp_filter)
 
         if self.burn_subs:
-            self.tmp_filter = f'subtitles={self.sub_file}'
+            self.tmp_filter = (f'subtitles={self.sub_file}:force_style="'
+                               f'FontName={settings.sub_font_name},'
+                               f'Fontsize={settings.sub_font_size},'
+                               f'PrimaryColour={settings.sub_font_color}"')
             self._filter_len_check()
             self._add_filter(self.tmp_filter)
 

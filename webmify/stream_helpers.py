@@ -38,7 +38,14 @@ def get_audio_lang(in_file: PurePath, audio_id: str) -> str:
                                    universal_newlines=True).strip()
 
 
-def get_crop_dimns(in_file: PurePath):
+def get_crop_dimns(in_file: PurePath) -> str:
+    """Parse for crop dimensions using ffmpeg.
+    Returns string of crop dimensions to feed
+    directly into ffmpeg crop filter
+
+    Parameters:
+    in_file - filename
+    """
     crop_cmd = ['ffmpeg', '-ss', '300', '-t', '1200', '-i', f'{in_file}',
                 '-vf', 'cropdetect', '-an', '-f', 'null', '/dev/null']
 
@@ -88,6 +95,24 @@ def get_sub_stream(in_file: PurePath) -> str:
 
     return subprocess.check_output(probe_cmd, stdin=None, stderr=None,
                                    shell=False, universal_newlines=True).strip()
+
+
+def get_sub_stream(in_file: PurePath, stream_id: str) -> str:
+    """Use ffprobe to query the subtitle stream
+    type.
+
+    Parameters:
+    in_file - filename
+    stream_id - relative stream id [0...]
+    """
+    audio_lang_probe_cmd = ['ffprobe', f'{in_file}', '-loglevel',
+                            'error', '-select_streams', f's:{stream_id}',
+                            '-show_entries', 'stream=codec_name',
+                            '-of', 'default=nw=1:nk=1']
+
+    return subprocess.run(audio_lang_probe_cmd,
+                          capture_output=True,
+                          text=True).strip()
 
 
 def get_vp9_tile_columns(in_file: PurePath, stream_id: str) -> str:
