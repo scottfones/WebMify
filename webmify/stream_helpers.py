@@ -105,14 +105,14 @@ def get_sub_type(in_file: PurePath, stream_id: str) -> str:
     in_file - filename
     stream_id - relative stream id [0...]
     """
-    audio_lang_probe_cmd = ['ffprobe', f'{in_file}', '-loglevel',
-                            'error', '-select_streams', f's:{stream_id}',
-                            '-show_entries', 'stream=codec_name',
-                            '-of', 'default=nw=1:nk=1']
+    probe_cmd = ['ffprobe', f'{in_file}', '-loglevel',
+                 'error', '-select_streams', f's:{stream_id}',
+                 '-show_entries', 'stream=codec_name',
+                 '-of', 'default=nw=1:nk=1']
 
-    return subprocess.run(audio_lang_probe_cmd,
+    return subprocess.run(probe_cmd,
                           capture_output=True,
-                          text=True).strip()
+                          text=True).stdout.strip()
 
 
 def get_vp9_tile_columns(in_file: PurePath, stream_id: str) -> str:
