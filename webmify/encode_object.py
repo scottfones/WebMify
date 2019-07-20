@@ -229,6 +229,7 @@ class WebVTTEncode(EncodeObject):
 @dataclass
 class ChromecastEncode(EncodeObject):
     burn_subs: bool = False
+    crf: str = '19'
     crop: bool = True
     denoise: bool = False
     sub_file: PurePath = ''
@@ -239,6 +240,7 @@ class ChromecastEncode(EncodeObject):
         self.stream = stream_object.ChromecastStream(self.in_file,
                                                      self.stream_id,
                                                      burn_subs=self.burn_subs,
+                                                     crf=self.crf,
                                                      crop=self.crop,
                                                      denoise=self.denoise,
                                                      sub_file=self.sub_file)
@@ -247,6 +249,7 @@ class ChromecastEncode(EncodeObject):
 @dataclass
 class VP9Encode(EncodeObject):
     burn_subs: bool = False
+    crf: str = '19'
     crop: bool = False
     denoise: bool = False
     sub_file: PurePath = ''
@@ -257,6 +260,7 @@ class VP9Encode(EncodeObject):
         self.stream = stream_object.VP9Stream(self.in_file,
                                               self.stream_id,
                                               burn_subs=self.burn_subs,
+                                              crf=self.crf,
                                               crop=self.crop,
                                               denoise=self.denoise,
                                               sub_file=self.sub_file)

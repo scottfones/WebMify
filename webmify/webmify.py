@@ -45,8 +45,8 @@ def main():
 
     ffmpeg_opts.add_option('-q', '--quality', '--crf',
                            action='store', type='string', dest='crf',
-                           default='20',
-                           help='set encoding quality, default = 20')
+                           default='19',
+                           help='set encoding quality, default = 19')
 
     ffmpeg_opts.add_option('--threads',
                            action='store', type='string', dest='thread_count',
@@ -125,6 +125,7 @@ def main():
                                       out_file=options.out_file,
                                       file_title=file_title,
                                       file_summary=file_summary,
+                                      crf=options.crf,
                                       crop=options.crop,
                                       denoise=options.denoise,
                                       sub_file=sub_file)

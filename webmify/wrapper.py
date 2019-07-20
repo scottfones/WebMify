@@ -21,6 +21,7 @@ class WrapperObject(ABC):
     wrap_cmd: List[str] = field(default_factory=list)
 
     burn_subs: bool = False
+    crf = 'str' = '19'
     crop: bool = False
     denoise: bool = False
     sub_file: PurePath = ''
@@ -59,6 +60,7 @@ class ChromecastWrapper(WrapperObject):
         self.video_stream = encode_object.ChromecastEncode(in_file=self.in_file,
                                                            out_file=self.out_file,
                                                            burn_subs=self.burn_subs,
+                                                           crf=self.crf,
                                                            crop=self.crop,
                                                            denoise=self.denoise,
                                                            sub_file=self.sub_file)
@@ -99,6 +101,7 @@ class TVWrapper(WrapperObject, ABC):
         self.out_file = self.out_file.with_suffix('.webm')
         self.video_stream = encode_object.VP9Encode(in_file=self.in_file,
                                                     out_file=self.out_file,
+                                                    crf=self.crf,
                                                     crop=self.crop,
                                                     burn_subs=self.burn_subs,
                                                     denoise=self.denoise,
