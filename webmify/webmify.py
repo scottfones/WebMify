@@ -126,6 +126,7 @@ def main():
                                       file_title=file_title,
                                       file_summary=file_summary,
                                       crop=options.crop,
+                                      denoise=options.denoise,
                                       sub_file=sub_file)
         else:
             if options.season_num:
@@ -137,6 +138,9 @@ def main():
                 tv_episode = options.episode_num
             else:
                 tv_episode = input_parser.get_episode(file)
+
+            if options.out_file:
+                options.out_file = Path(options.out_file).with_suffix(f'.s{tv_season}e{tv_episode}.webm')
 
             if not input_parser.is_batch_repeat(prev_file, file):
                 title = thetvdb_lookup.get_title(title)
@@ -153,6 +157,7 @@ def main():
                                                   file_summary=file_summary,
                                                   burn_subs=options.burn_subs,
                                                   crop=options.crop,
+                                                  denoise=options.denoise,
                                                   sub_file=sub_file)
                 else:
                     wrapper.TVMultiChannelSubtitleWrapper(in_file=file,
@@ -160,6 +165,7 @@ def main():
                                                           file_title=file_title,
                                                           file_summary=file_summary,
                                                           crop=options.crop,
+                                                          denoise=options.denoise,
                                                           sub_file=sub_file)
             else:
                 if options.burn_subs or not sub_file:
@@ -169,14 +175,16 @@ def main():
                                             file_summary=file_summary,
                                             burn_subs=options.burn_subs,
                                             crop=options.crop,
+                                            denoise=options.denoise,
                                             sub_file=sub_file)
                 else:
-                    wrapper.TVStereoSubsWrapper(in_file=file,
-                                                out_file=options.out_file,
-                                                file_title=file_title,
-                                                file_summary=file_summary,
-                                                crop=options.crop,
-                                                sub_file=sub_file)
+                    wrapper.TVStereoSubtitleWrapper(in_file=file,
+                                                    out_file=options.out_file,
+                                                    file_title=file_title,
+                                                    file_summary=file_summary,
+                                                    crop=options.crop,
+                                                    denoise=options.denoise,
+                                                    sub_file=sub_file)
 
         if options.del_orig:
             print(f'Deleting Input File: {file}')

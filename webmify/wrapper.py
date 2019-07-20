@@ -60,6 +60,7 @@ class ChromecastWrapper(WrapperObject):
                                                            out_file=self.out_file,
                                                            burn_subs=self.burn_subs,
                                                            crop=self.crop,
+                                                           denoise=self.denoise,
                                                            sub_file=self.sub_file)
         self.audio_stream = encode_object.AACNormalizedDownmixEncode(in_file=self.in_file,
                                                                      out_file=self.out_file)
@@ -100,6 +101,7 @@ class TVWrapper(WrapperObject, ABC):
                                                     out_file=self.out_file,
                                                     crop=self.crop,
                                                     burn_subs=self.burn_subs,
+                                                    denoise=self.denoise,
                                                     sub_file=self.sub_file)
         self.audio_stream = encode_object.OpusEncode(in_file=self.in_file,
                                                      out_file=self.out_file)

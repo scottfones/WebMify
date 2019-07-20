@@ -361,6 +361,11 @@ class VideoStream(StreamObject, ABC):
             self._filter_len_check()
             self._add_filter(self.tmp_filter)
 
+        if self.denoise:
+            self.tmp_filter = 'fftdnoiz=8:1:5:0.5:1:1'
+            self._filter_len_check()
+            self._add_filter(self.tmp_filter)
+
         if self.burn_subs:
             self.sub_type = stream_helpers.get_sub_type(in_file=self.in_file,
                                                         stream_id=self.stream_id)
