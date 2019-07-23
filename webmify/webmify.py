@@ -48,6 +48,11 @@ def main():
                            default='19',
                            help='set encoding quality, default = 19')
 
+    ffmpeg_opts.add_option('--sub-id',
+                           action='store', type='string', dest='sub_id',
+                           default='0',
+                           help='relative subtitle stream number, default = 0')
+
     ffmpeg_opts.add_option('--threads',
                            action='store', type='string', dest='thread_count',
                            default='16',
@@ -101,13 +106,17 @@ def main():
 
     work_list = [Path(file) for file in args]
 
+    orig_out_file = options.out_file
     prev_file = None
     for file in work_list:
         print('\n\nX        NEW ENCODE        X\n\n')
 
         if options.ext_subs:
             sub_file = file.with_suffix('.srt')
-        elif stream_helpers.get_sub_stream(file):
+        elif options.no_subs:
+            sub_file = ''
+        elif (stream_helpers.get_sub_stream(file)
+              and stream_helpers.get_sub_type(file, options.sub_id) != 'hdmv_pgs_subtitle'):
             sub_file = file
         else:
             sub_file = ''
@@ -141,7 +150,7 @@ def main():
                 tv_episode = input_parser.get_episode(file)
 
             if options.out_file:
-                options.out_file = Path(options.out_file).with_suffix(f'.s{tv_season}e{tv_episode}.webm')
+                options.out_file = Path(orig_out_file).with_suffix(f'.s{tv_season}e{tv_episode}.webm')
 
             if not input_parser.is_batch_repeat(prev_file, file):
                 title = thetvdb_lookup.get_title(title)
@@ -157,6 +166,7 @@ def main():
                                                   file_title=file_title,
                                                   file_summary=file_summary,
                                                   burn_subs=options.burn_subs,
+                                                  crf=options.crf,
                                                   crop=options.crop,
                                                   denoise=options.denoise,
                                                   sub_file=sub_file)
@@ -165,6 +175,7 @@ def main():
                                                           out_file=options.out_file,
                                                           file_title=file_title,
                                                           file_summary=file_summary,
+                                                          crf=options.crf,
                                                           crop=options.crop,
                                                           denoise=options.denoise,
                                                           sub_file=sub_file)
@@ -175,6 +186,7 @@ def main():
                                             file_title=file_title,
                                             file_summary=file_summary,
                                             burn_subs=options.burn_subs,
+                                            crf=options.crf,
                                             crop=options.crop,
                                             denoise=options.denoise,
                                             sub_file=sub_file)
@@ -183,12 +195,13 @@ def main():
                                                     out_file=options.out_file,
                                                     file_title=file_title,
                                                     file_summary=file_summary,
+                                                    crf=options.crf,
                                                     crop=options.crop,
                                                     denoise=options.denoise,
                                                     sub_file=sub_file)
 
         if options.del_orig:
-            print(f'Deleting Input File: {file}')
+            print(f'Deleting input file: {file}')
             file.unlink()
 
         prev_file = file
