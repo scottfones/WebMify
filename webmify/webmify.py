@@ -201,7 +201,10 @@ def main():
                                                     sub_file=sub_file)
 
         if options.del_orig:
-            print(f'Deleting input file: {file}')
+            if options.ext_subs:
+                print(f'Deleting external subtitle file: {sub_file}')
+                sub_file.unlink()
+            print(f'Deleting input file: {sub_file}')
             file.unlink()
 
         prev_file = file
