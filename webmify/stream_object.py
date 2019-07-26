@@ -336,9 +336,9 @@ class VideoStream(StreamObject, ABC):
             self.filter_flags = None
 
         if self.crop:
-            print('\nParsing crop dimensions:')
+            print('\nParsing crop dimensions: ', end='')
             self.crop_dimns = stream_helpers.get_crop_dimns(self.in_file)
-            print(f'Cropping to: {self.crop_dimns}')
+            print(f'{self.crop_dimns}')
             self.tmp_filter = f'crop={self.crop_dimns}'
             self._filter_len_check()
             self._add_filter(self.tmp_filter)
