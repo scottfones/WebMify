@@ -21,7 +21,7 @@ class WrapperObject(ABC):
     wrap_cmd: List[str] = field(default_factory=list)
 
     burn_subs: bool = False
-    crf = 'str' = '19'
+    crf: 'str' = '19'
     crop: bool = False
     denoise: bool = False
     sub_file: PurePath = ''
@@ -168,7 +168,7 @@ class TVMultiChannelSubtitleWrapper(TVWrapper):
                          '-i', self.sub_stream.out_file,
                          '-map', '0:0', '-map', '1:0',
                          '-map', '2:0', '-map', '3:0',
-                         '-c:v', 'copy', '-c:a', 'copy', '-c:s', 'copy'
+                         '-c:v', 'copy', '-c:a', 'copy', '-c:s', 'copy',
                          '-metadata', f'title={self.file_title}',
                          '-metadata', f'summary={self.file_summary}',
                          self.out_file]
