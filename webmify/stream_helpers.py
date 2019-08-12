@@ -46,7 +46,7 @@ def get_crop_dimns(in_file: PurePath) -> str:
     Parameters:
     in_file - filename
     """
-    crop_cmd = ['ffmpeg', '-ss', '300', '-t', '1200', '-i', f'{in_file}',
+    crop_cmd = ['ffmpeg', '-ss', '300', '-t', '600', '-i', f'{in_file}',
                 '-vf', 'cropdetect', '-an', '-f', 'null', '/dev/null']
 
     comp_proc = subprocess.run(crop_cmd,
@@ -110,9 +110,17 @@ def get_sub_type(in_file: PurePath, stream_id: str) -> str:
                  '-show_entries', 'stream=codec_name',
                  '-of', 'default=nw=1:nk=1']
 
-    return subprocess.run(probe_cmd,
-                          capture_output=True,
-                          text=True).stdout.strip()
+    sub_type = subprocess.run(probe_cmd, capture_output=True,
+                              text=True).stdout.strip()
+
+    if sub_type:
+        return sub_type
+    elif Path(in_file).suffix == 'srt':
+        return 'subrip'
+    elif Path(in_file).suffix == 'ass':
+        return 'ass'
+    else:
+        return ''
 
 
 def get_vp9_tile_columns(in_file: PurePath, stream_id: str) -> str:
