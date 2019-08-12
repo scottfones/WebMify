@@ -115,8 +115,8 @@ def main():
             sub_file = file.with_suffix('.srt')
         elif options.no_subs:
             sub_file = ''
-        elif (stream_helpers.get_sub_stream(file)
-              and stream_helpers.get_sub_type(file, options.sub_id) != 'hdmv_pgs_subtitle'):
+        elif (stream_helpers.get_sub_stream(file) and
+              stream_helpers.get_sub_type(file, options.sub_id) != 'hdmv_pgs_subtitle'):
             sub_file = file
         else:
             sub_file = ''
@@ -153,9 +153,10 @@ def main():
                 options.out_file = Path(orig_out_file).with_suffix(f'.s{tv_season}e{tv_episode}.webm')
 
             if not input_parser.is_batch_repeat(prev_file, file):
-                title = thetvdb_lookup.get_title(title)
+                show = thetvdb_lookup.get_show(title)
+                file_title = show['seriesName']
 
-            file_title, file_summary = thetvdb_lookup.get_file_metadata(title,
+            file_title, file_summary = thetvdb_lookup.get_file_metadata(show,
                                                                         tv_season,
                                                                         tv_episode)
 
@@ -204,7 +205,7 @@ def main():
             if options.ext_subs:
                 print(f'Deleting external subtitle file: {sub_file}')
                 sub_file.unlink()
-            print(f'Deleting input file: {sub_file}')
+            print(f'Deleting input file: {file}')
             file.unlink()
 
         prev_file = file
