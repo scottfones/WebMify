@@ -14,7 +14,8 @@ lang_dict = {'chi': 'Chinese',
              'ger': 'German',
              'jpn': 'Japanese',
              'spn': 'Spanish',
-             'und': ''}
+             'und': '',
+             '': 'English'}
 """Communal dict to translate language codes."""
 
 
@@ -367,7 +368,7 @@ class VideoStream(StreamObject, ABC):
             self._add_filter(self.tmp_filter)
 
         if self.burn_subs:
-            self.sub_type = stream_helpers.get_sub_type(in_file=self.in_file,
+            self.sub_type = stream_helpers.get_sub_type(in_file=self.sub_file,
                                                         stream_id=self.stream_id)
 
             if self.sub_type == 'subrip':

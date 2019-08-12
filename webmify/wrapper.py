@@ -117,7 +117,8 @@ class TVMultiChannelWrapper(TVWrapper):
     def __post_init__(self):
         super().__post_init__()
 
-        self.downmix_stream = encode_object.OpusNormalizedDownmixEncode(in_file=self.in_file, out_file=self.out_file)
+        self.downmix_stream = encode_object.OpusNormalizedDownmixEncode(in_file=self.in_file,
+                                                                        out_file=self.out_file)
 
         self.wrap()
 
