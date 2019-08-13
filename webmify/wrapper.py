@@ -172,6 +172,7 @@ class TVMultiChannelSubtitleWrapper(TVWrapper):
                          '-c:v', 'copy', '-c:a', 'copy', '-c:s', 'copy',
                          '-metadata', f'title={self.file_title}',
                          '-metadata', f'summary={self.file_summary}',
+                         '-disposition:s:0', '0',
                          self.out_file]
 
         print('\n\nRunning: TV - Surround - Subtitles Wrapper')
@@ -238,6 +239,7 @@ class TVStereoSubtitleWrapper(TVWrapper):
                          '-c:v', 'copy', '-c:a', 'copy', '-c:s', 'copy',
                          '-metadata', f'title={self.file_title}',
                          '-metadata', f'summary={self.file_summary}',
+                         '-disposition:s:0', '0',
                          self.out_file]
 
         print('\n\nRunning: TV - Stereo - Subtitles Wrapper')
