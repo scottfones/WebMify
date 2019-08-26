@@ -127,20 +127,20 @@ class AACStream(AudioStream):
         self.encoder_flags = encoder_dict[self.channel_num]
 
     def _set_metadata(self):
-        metadata_dict = {'1': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- AAC Mono"',
+        metadata_dict = {'1': ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                                '- AAC Mono',
                                '-metadata:s:a', f'language={self.stream_lang}'],
-                         '2': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- AAC Stereo"',
+                         '2': ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                                '- AAC Stereo',
                                '-metadata:s:a', f'language={self.stream_lang}'],
-                         '4': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- Opus Stereo"',
+                         '4': ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                                '- Opus Stereo',
                                '-metadata:s:a', f'language={self.stream_lang}'],
-                         '6': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- AAC Surround Sound - 5.1"',
+                         '6': ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                                '- AAC Surround Sound - 5.1',
                                '-metadata:s:a', f'language={self.stream_lang}'],
-                         '8': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- AAC Surround Sound - 7.1"',
+                         '8': ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                                '- AAC Surround Sound - 7.1',
                                '-metadata:s:a', f'language={self.stream_lang}']}
 
         self.metadata = metadata_dict[self.channel_num]
@@ -149,8 +149,8 @@ class AACStream(AudioStream):
 @dataclass
 class AACNormalizedDownmixStream(AACStream):
     def _set_metadata(self):
-        self.metadata = ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                          '- AAC Dialogue Enhanced Downmix - 2.0"',
+        self.metadata = ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                          '- AAC Dialogue Enhanced Downmix - 2.0',
                          '-metadata:s:a', f'language={self.stream_lang}']
 
 
@@ -188,8 +188,8 @@ class NormalizedSecondPassStream(AudioStream):
         self.encoder_flags = ['-c:a', 'pcm_s16le', '-ar', '48k']
 
     def _set_metadata(self):
-        self.metadata = ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                          '- Normalized Stereo"']
+        self.metadata = ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                          '- Normalized Stereo']
 
 
 @dataclass
@@ -218,20 +218,20 @@ class OpusStream(AudioStream):
         self.encoder_flags = encoder_dict[self.channel_num]
 
     def _set_metadata(self):
-        metadata_dict = {'1': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- Opus Mono"',
+        metadata_dict = {'1': ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                                '- Opus Mono',
                                '-metadata:s:a', f'language={self.stream_lang}'],
-                         '2': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- Opus Stereo"',
+                         '2': ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                                '- Opus Stereo',
                                '-metadata:s:a', f'language={self.stream_lang}'],
-                         '4': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- Opus Stereo"',
+                         '4': ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                                '- Opus Stereo',
                                '-metadata:s:a', f'language={self.stream_lang}'],
-                         '6': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- Opus Surround Sound - 5.1"',
+                         '6': ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                                '- Opus Surround Sound - 5.1',
                                '-metadata:s:a', f'language={self.stream_lang}'],
-                         '8': ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                                '- Opus Surround Sound - 7.1"',
+                         '8': ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                                '- Opus Surround Sound - 7.1',
                                '-metadata:s:a', f'language={self.stream_lang}']}
 
         self.metadata = metadata_dict[self.channel_num]
@@ -240,8 +240,8 @@ class OpusStream(AudioStream):
 @dataclass
 class OpusNormalizedDownmixStream(OpusStream):
     def _set_metadata(self):
-        self.metadata = ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                          '- Opus Dialogue Enhanced Downmix - 2.0"',
+        self.metadata = ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                          '- Opus Dialogue Enhanced Downmix - 2.0',
                          '-metadata:s:a', f'language={self.stream_lang}']
 
 
@@ -258,8 +258,8 @@ class StereoDownmixStream(AudioStream):
         self.encoder_flags = ['-c:a', 'pcm_s16le', '-ar', '48k']
 
     def _set_metadata(self):
-        self.metadata = ['-metadata:s:a', f'title="{lang_dict[self.stream_lang]} '
-                                          '- Stereo Downmix"',
+        self.metadata = ['-metadata:s:a', f'title={lang_dict[self.stream_lang]} '
+                                          '- Stereo Downmix',
                          '-metadata:s:a', f'language={self.stream_lang}']
 
     def _set_stream_maps(self):
@@ -281,7 +281,7 @@ class WebVTTStream(StreamObject):
         self.encoder_flags = ['-c:s', 'webvtt']
 
     def _set_metadata(self):
-        self.metadata = ['-metadata:s:s', 'title="English Subtitles"']
+        self.metadata = ['-metadata:s:s', 'title=English Subtitles']
 
     def _set_stream_maps(self):
         self.stream_maps = ['-map', f'0:s:{self.stream_id}']
@@ -363,7 +363,7 @@ class VideoStream(StreamObject, ABC):
             self._add_filter(self.tmp_filter)
 
         if self.denoise:
-            self.tmp_filter = 'fftdnoiz=8:1:5:0.5:1:1'
+            self.tmp_filter = 'fftdnoiz=10:1:5:0.5:1:1'
             self._filter_len_check()
             self._add_filter(self.tmp_filter)
 
@@ -403,7 +403,7 @@ class ChromecastStream(VideoStream):
                               '-level', '4.1', '-maxrate', '5M', '-bufsize', '2M']
 
     def _set_metadata(self):
-        self.metadata = ['-metadata:s:v', 'title="h264 (avc1) 4.1 High"']
+        self.metadata = ['-metadata:s:v', 'title=h264 (avc1) 4.1 High']
 
 
 @dataclass
@@ -419,4 +419,4 @@ class VP9Stream(VideoStream):
                               '-profile:v', '2', '-pix_fmt', 'yuv420p10le']
 
     def _set_metadata(self):
-        self.metadata = ['-metadata:s:v', 'title="VP9 - Profile 2 - 10-bit"']
+        self.metadata = ['-metadata:s:v', 'title=VP9 - Profile 2 - 10-bit']
