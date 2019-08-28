@@ -363,7 +363,7 @@ class VideoStream(StreamObject, ABC):
             self._add_filter(self.tmp_filter)
 
         if self.denoise:
-            self.tmp_filter = 'fftdnoiz=10:1:5:0.5:1:1'
+            self.tmp_filter = 'nlmeans=s=8:r=5'
             self._filter_len_check()
             self._add_filter(self.tmp_filter)
 
