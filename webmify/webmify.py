@@ -29,9 +29,9 @@ def main():
                            help='apply crop, default = false')
 
     ffmpeg_opts.add_option('--denoise',
-                           action='store_true', dest='denoise',
-                           default=False,
-                           help='Apply fftdnoiz filter, default = false')
+                           action='store', dest='denoise',
+                           default=0,
+                           help='Apply bm3d filter at specified strength')
 
     ffmpeg_opts.add_option('--external-subs',
                            action='store_true', dest='ext_subs',
