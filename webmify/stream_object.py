@@ -250,8 +250,8 @@ class StereoDownmixStream(AudioStream):
     def _set_filter(self):
         self.filter_flags = ['-filter_complex', f'[a:{self.stream_id}]'
                                                 'pan=stereo'
-                                                '|c0=.9*FL+1.10*FC+.4*BL+.4*SL'
-                                                '|c1=.9*FR+1.10*FC+.4*BR+.4*SR'
+                                                '|c0=.95*FL+1.0*FC+.4*BL+.4*SL'
+                                                '|c1=.95*FR+1.0*FC+.4*BR+.4*SR'
                                                 '[dm]']
 
     def _set_encoder(self):
