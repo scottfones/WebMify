@@ -155,7 +155,7 @@ class NormalizeSecondPassEncode(EncodeObject):
             pass
 
         self.cur_lra = self.norm_first_encode.out_lra
-        if float(self.cur_lra) > 18.2:
+        if float(self.cur_lra) > 17.0:
             self.old_name = self.out_file.with_suffix('.old.mkv')
             self.out_file.rename(self.old_name)
 
